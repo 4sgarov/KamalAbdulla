@@ -42,6 +42,16 @@ burgerBtn.addEventListener("click", () => {
 });
 overlay.addEventListener("click", closeSidebar);
 
+/* ---------- RENDER: ABOUT ME ---------- */
+const aboutPhoto = document.getElementById("aboutPhoto");
+const aboutText = document.getElementById("aboutText");
+
+function renderAbout() {
+  const about = getAbout();
+  aboutPhoto.src = about.photo;
+  aboutText.innerHTML = about.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join("");
+}
+
 /* ---------- RENDER: PORTFOLIO ---------- */
 const portfolioGrid = document.getElementById("portfolioGrid");
 
@@ -55,19 +65,30 @@ function renderPortfolio() {
 }
 
 /* ---------- PORTFOLIO FILTERS ---------- */
-const filterButtons = document.querySelectorAll(".filter-btn");
+const portfolioFilters = document.getElementById("portfolioFilters");
+let currentFilter = "all";
+
+function renderPortfolioFilters() {
+  const categories = getCategories();
+  const buttons = [{ id: "all", label: "All" }].concat(categories);
+  portfolioFilters.innerHTML = buttons.map(cat => `
+    <button class="filter-btn${cat.id === currentFilter ? " active" : ""}" data-filter="${escapeHtml(cat.id)}">${escapeHtml(cat.label)}</button>
+  `).join("");
+}
 
 function applyFilter(filter) {
+  currentFilter = filter;
   document.querySelectorAll(".portfolio-item").forEach(item => {
     item.hidden = filter !== "all" && item.dataset.category !== filter;
   });
-  filterButtons.forEach(btn => {
+  portfolioFilters.querySelectorAll(".filter-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.filter === filter);
   });
 }
 
-filterButtons.forEach(btn => {
-  btn.addEventListener("click", () => applyFilter(btn.dataset.filter));
+portfolioFilters.addEventListener("click", e => {
+  const btn = e.target.closest(".filter-btn");
+  if (btn) applyFilter(btn.dataset.filter);
 });
 
 /* ---------- PORTFOLIO LIGHTBOX ---------- */
@@ -457,18 +478,22 @@ document.addEventListener("keydown", e => {
 });
 
 /* ---------- BAŞQA TAB-DAN CANLI YENİLƏNMƏ ----------
-   Admin Panel (admin.html) başqa bir tab-da açıq olarkən məzmunu
+   Admin Panel (/admin) başqa bir tab-da açıq olarkən məzmunu
    dəyişəndə, "storage" hadisəsi bu tab-a da çatır və uyğun bölməni
    yenidən çəkirik — səhifəni əl ilə yeniləmək lazım qalmır. (Bu hadisə
    yalnız DİGƏR tab-larda baş verən dəyişikliklər üçün işə düşür, öz
    tab-ının dəyişikliyi üçün yox — bu, brauzerlərin normal davranışıdır.) */
 window.addEventListener("storage", e => {
-  if (e.key === STORAGE_KEYS.portfolio) renderPortfolio();
+  if (e.key === STORAGE_KEYS.about) renderAbout();
+  if (e.key === STORAGE_KEYS.portfolio) { renderPortfolio(); applyFilter(currentFilter); }
+  if (e.key === STORAGE_KEYS.categories) { renderPortfolioFilters(); applyFilter(currentFilter); }
   if (e.key === STORAGE_KEYS.seminars) renderSeminars();
   if (e.key === STORAGE_KEYS.blog) renderBlogList();
 });
 
 /* ---------- INIT ---------- */
+renderAbout();
+renderPortfolioFilters();
 renderPortfolio();
 renderSeminars();
 renderBlogList();

@@ -1,13 +1,46 @@
 /* ---------- İKON QISAYOLLARI ---------- */
 const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
 const ICON_DELETE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+const ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+const ICON_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12l7 7 7-7"/></svg>';
 
-const CATEGORY_LABELS = {
-  "cover-up": "Cover Up",
-  "fine-art": "Fine Art",
-  "realism": "Realism",
-  "color-realism": "Color Realism"
-};
+/* ---------- FAYL YÜKLƏMƏ KÖMƏKÇİLƏRİ (video/şəkil) ----------
+   Seçilən fayl base64 data: URI-ya çevrilib localStorage-da saxlanılır.
+   Bu YALNIZ kiçik fayllar üçün etibarlıdır (~5-8 MB-a qədər) — brauzer
+   yaddaşının həcm limiti var. Böyük fayl seçiləndə saveData() false
+   qaytarır və çağıran tərəf istifadəçini xəbərdar edir. */
+function humanFileSize(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  const units = ["KB", "MB", "GB"];
+  let i = -1;
+  do {
+    bytes /= 1024;
+    i++;
+  } while (bytes >= 1024 && i < units.length - 1);
+  return bytes.toFixed(1) + " " + units[i];
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFileChange(fileInput, statusEl, onLoaded) {
+  const file = fileInput.files[0];
+  if (!file) return;
+  statusEl.textContent = "Yüklənir…";
+  try {
+    const dataUrl = await readFileAsDataUrl(file);
+    onLoaded(dataUrl);
+    statusEl.textContent = file.name + " (" + humanFileSize(file.size) + ")";
+  } catch (err) {
+    statusEl.textContent = "Xəta baş verdi";
+  }
+}
 
 /* ---------- LOGIN (DEMO) ----------
    Bu, real autentifikasiya deyil — sadəcə interfeys demo-sudur. İstifadəçi
@@ -76,6 +109,55 @@ function renderDashboard() {
   document.getElementById("statBlog").textContent = getBlogPosts().length;
   document.getElementById("statPortfolio").textContent = getPortfolio().length;
 }
+
+/* ============================================================
+   ABOUT ME
+   ============================================================ */
+const aboutForm = document.getElementById("aboutForm");
+const aboutPreview = document.getElementById("aboutPreview");
+const aboutPhotoFile = document.getElementById("aboutPhotoFile");
+const aboutPhotoStatus = document.getElementById("aboutPhotoStatus");
+const aboutBody = document.getElementById("aboutBody");
+
+let pendingAboutPhoto = null;
+
+function renderAboutForm() {
+  const about = getAbout();
+  pendingAboutPhoto = null;
+  aboutPhotoFile.value = "";
+  aboutPreview.src = about.photo;
+  aboutPhotoStatus.textContent = "Seçilməyib";
+  aboutBody.value = about.paragraphs.join("\n\n");
+}
+
+aboutPhotoFile.addEventListener("change", () => {
+  handleFileChange(aboutPhotoFile, aboutPhotoStatus, url => {
+    pendingAboutPhoto = url;
+    aboutPreview.src = url;
+  });
+});
+
+aboutForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const paragraphs = aboutBody.value.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+
+  if (paragraphs.length === 0) {
+    aboutBody.focus();
+    return;
+  }
+
+  const current = getAbout();
+  const data = {
+    photo: pendingAboutPhoto !== null ? pendingAboutPhoto : current.photo,
+    paragraphs: paragraphs
+  };
+
+  const saved = setAbout(data);
+  if (!saved) {
+    alert("Diqqət: seçdiyiniz şəkil brauzerin daimi yaddaşına sığmadı. Dəyişiklik yalnız bu səhifə açıq qaldığı müddətdə görünəcək — daha kiçik ölçülü şəkil seçin.");
+  }
+  renderAboutForm();
+});
 
 /* ---------- ÜMUMİ: SİLMƏ TƏSDİQİ ---------- */
 const confirmModal = document.getElementById("confirmModal");
@@ -222,45 +304,12 @@ let editingSeminarId = null;
 let pendingTrailerData = null;
 let pendingFullData = null;
 
-function humanFileSize(bytes) {
-  if (bytes < 1024) return bytes + " B";
-  const units = ["KB", "MB", "GB"];
-  let i = -1;
-  do {
-    bytes /= 1024;
-    i++;
-  } while (bytes >= 1024 && i < units.length - 1);
-  return bytes.toFixed(1) + " " + units[i];
-}
-
-function readFileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-}
-
-async function handleVideoFileChange(fileInput, statusEl, onLoaded) {
-  const file = fileInput.files[0];
-  if (!file) return;
-  statusEl.textContent = "Yüklənir…";
-  try {
-    const dataUrl = await readFileAsDataUrl(file);
-    onLoaded(dataUrl);
-    statusEl.textContent = file.name + " (" + humanFileSize(file.size) + ")";
-  } catch (err) {
-    statusEl.textContent = "Xəta baş verdi";
-  }
-}
-
 seminarTrailerFile.addEventListener("change", () => {
-  handleVideoFileChange(seminarTrailerFile, seminarTrailerStatus, url => { pendingTrailerData = url; });
+  handleFileChange(seminarTrailerFile, seminarTrailerStatus, url => { pendingTrailerData = url; });
 });
 
 seminarFullFile.addEventListener("change", () => {
-  handleVideoFileChange(seminarFullFile, seminarFullStatus, url => { pendingFullData = url; });
+  handleFileChange(seminarFullFile, seminarFullStatus, url => { pendingFullData = url; });
 });
 
 function renderSeminarsTable() {
@@ -451,6 +500,71 @@ blogTableBody.addEventListener("click", e => {
 });
 
 /* ============================================================
+   PORTFOLIO KATEQORİYALARI
+   ============================================================ */
+const categoryList = document.getElementById("categoryList");
+const categoryAddForm = document.getElementById("categoryAddForm");
+const categoryNameInput = document.getElementById("categoryNameInput");
+
+function categoryLabel(id) {
+  const cat = getCategories().find(c => c.id === id);
+  return cat ? cat.label : id;
+}
+
+function populateCategorySelect(selectEl, selectedId) {
+  const categories = getCategories();
+  selectEl.innerHTML = categories.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.label)}</option>`).join("");
+  if (selectedId) selectEl.value = selectedId;
+}
+
+function renderCategoriesList() {
+  const categories = getCategories();
+  if (categories.length === 0) {
+    categoryList.innerHTML = '<span class="category-empty">Hələ heç bir kateqoriya yoxdur.</span>';
+    return;
+  }
+  categoryList.innerHTML = categories.map(c => `
+    <span class="category-pill">
+      ${escapeHtml(c.label)}
+      <button type="button" data-delete-category="${escapeHtml(c.id)}" aria-label="Kateqoriyanı sil">&times;</button>
+    </span>
+  `).join("");
+}
+
+categoryAddForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const label = categoryNameInput.value.trim();
+  if (!label) return;
+
+  const categories = getCategories();
+  const id = label.toLowerCase()
+    .replace(/[^a-z0-9əıöüşç\s-]/gi, "")
+    .trim()
+    .replace(/\s+/g, "-") || makeId("cat");
+
+  if (categories.some(c => c.id === id)) {
+    alert("Bu adda kateqoriya artıq mövcuddur.");
+    return;
+  }
+
+  categories.push({ id, label });
+  setCategories(categories);
+  categoryNameInput.value = "";
+  renderCategoriesList();
+});
+
+categoryList.addEventListener("click", e => {
+  const catId = e.target.closest("[data-delete-category]")?.dataset.deleteCategory;
+  if (!catId) return;
+
+  askDeleteConfirm("Bu kateqoriyanı silmək istədiyinizə əminsiniz? Bu kateqoriyadakı şəkillər silinməyəcək, sadəcə kateqoriyasız qalacaq.", () => {
+    setCategories(getCategories().filter(c => c.id !== catId));
+    renderCategoriesList();
+    renderPortfolioTable();
+  });
+});
+
+/* ============================================================
    PORTFOLIO
    ============================================================ */
 const portfolioTableBody = document.getElementById("portfolioTableBody");
@@ -464,11 +578,17 @@ let editingPortfolioId = null;
 
 function renderPortfolioTable() {
   const items = getPortfolio();
-  portfolioTableBody.innerHTML = items.map(item => `
+  portfolioTableBody.innerHTML = items.map((item, index) => `
     <tr>
+      <td>
+        <div class="reorder-btns">
+          <button class="admin-icon-btn" data-move-up="${escapeHtml(item.id)}" aria-label="Yuxarı" ${index === 0 ? "disabled" : ""}>${ICON_UP}</button>
+          <button class="admin-icon-btn" data-move-down="${escapeHtml(item.id)}" aria-label="Aşağı" ${index === items.length - 1 ? "disabled" : ""}>${ICON_DOWN}</button>
+        </div>
+      </td>
       <td><img class="admin-thumb" src="${escapeHtml(item.img)}" alt=""></td>
       <td>${escapeHtml(item.title)}</td>
-      <td><span class="admin-badge">${escapeHtml(CATEGORY_LABELS[item.category] || item.category)}</span></td>
+      <td><span class="admin-badge">${escapeHtml(categoryLabel(item.category))}</span></td>
       <td>
         <div class="admin-row-actions">
           <button class="admin-icon-btn" data-edit="${escapeHtml(item.id)}" aria-label="Redaktə et">${ICON_EDIT}</button>
@@ -484,7 +604,7 @@ function openPortfolioModal(item) {
   portfolioModalAdminTitle.textContent = item ? "Layihəni redaktə et" : "Yeni layihə";
   document.getElementById("portfolioTitle").value = item ? item.title : "";
   document.getElementById("portfolioImg").value = item ? item.img : "";
-  document.getElementById("portfolioCategory").value = item ? item.category : "cover-up";
+  populateCategorySelect(document.getElementById("portfolioCategory"), item ? item.category : null);
   portfolioModalAdmin.classList.add("show");
 }
 
@@ -521,9 +641,22 @@ portfolioForm.addEventListener("submit", e => {
   renderDashboard();
 });
 
+function movePortfolioItem(id, direction) {
+  const items = getPortfolio();
+  const idx = items.findIndex(i => i.id === id);
+  const swapWith = idx + direction;
+  if (idx === -1 || swapWith < 0 || swapWith >= items.length) return;
+
+  [items[idx], items[swapWith]] = [items[swapWith], items[idx]];
+  setPortfolio(items);
+  renderPortfolioTable();
+}
+
 portfolioTableBody.addEventListener("click", e => {
   const editId = e.target.closest("[data-edit]")?.dataset.edit;
   const deleteId = e.target.closest("[data-delete]")?.dataset.delete;
+  const moveUpId = e.target.closest("[data-move-up]")?.dataset.moveUp;
+  const moveDownId = e.target.closest("[data-move-down]")?.dataset.moveDown;
 
   if (editId) {
     const item = getPortfolio().find(i => i.id === editId);
@@ -537,6 +670,9 @@ portfolioTableBody.addEventListener("click", e => {
       renderDashboard();
     });
   }
+
+  if (moveUpId) movePortfolioItem(moveUpId, -1);
+  if (moveDownId) movePortfolioItem(moveDownId, 1);
 });
 
 /* ---------- ESC İLƏ BAĞLAMA (bütün admin modallar) ---------- */
@@ -551,8 +687,10 @@ document.addEventListener("keydown", e => {
 /* ---------- INIT ---------- */
 function renderAll() {
   renderDashboard();
+  renderAboutForm();
   renderUsersTable();
   renderSeminarsTable();
+  renderCategoriesList();
   renderBlogTable();
   renderPortfolioTable();
 }

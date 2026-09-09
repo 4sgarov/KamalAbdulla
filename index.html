@@ -46,25 +46,16 @@
         <div class="about-layout">
           <h1 class="view-title about-title">About Me</h1>
           <div class="about-photo">
-            <img src="assets/photo.svg" alt="Kamal Abdulla">
+            <img id="aboutPhoto" src="assets/photo.svg" alt="Kamal Abdulla">
           </div>
-          <div class="about-text">
-            <p>Salam! Mən Kamal Abdulla — dizayn, texnologiya və ictimai çıxışlar üzərində işləyirəm. Bu sayt mənim işlərimi, seminarlarımı və yeniliklərimi bir yerdə toplayır.</p>
-            <p>Missiyam sadədir: mürəkkəb ideyaları başa düşülən və faydalı formaya çevirmək.</p>
-          </div>
+          <div class="about-text" id="aboutText"></div>
         </div>
       </section>
 
       <section class="view" data-view="portfolio">
         <h1 class="view-title">Portfolio</h1>
 
-        <div class="portfolio-filters">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="cover-up">Cover Up</button>
-          <button class="filter-btn" data-filter="fine-art">Fine Art</button>
-          <button class="filter-btn" data-filter="realism">Realism</button>
-          <button class="filter-btn" data-filter="color-realism">Color Realism</button>
-        </div>
+        <div class="portfolio-filters" id="portfolioFilters"></div>
 
         <div class="portfolio-grid" id="portfolioGrid"></div>
       </section>

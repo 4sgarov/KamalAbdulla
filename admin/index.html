@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="admin.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
 <!-- LOGIN EKRANI -->
 <div class="admin-login" id="adminLogin">
   <form class="admin-login-box" id="adminLoginForm">
-    <img class="admin-login-logo" src="assets/logo.svg" alt="Kamal Abdulla">
+    <img class="admin-login-logo" src="../assets/logo.svg" alt="Kamal Abdulla">
     <h1 class="admin-login-title">Admin Panel</h1>
     <p class="admin-login-hint">Demo giriş: <strong>admin</strong> / <strong>admin123</strong></p>
     <input type="text" id="adminUsername" placeholder="İstifadəçi adı" autocomplete="username" required>
@@ -29,12 +29,16 @@
 <div class="admin-app" id="adminApp" hidden>
 
   <aside class="admin-sidebar">
-    <img class="admin-logo" src="assets/logo.svg" alt="Kamal Abdulla">
+    <img class="admin-logo" src="../assets/logo.svg" alt="Kamal Abdulla">
 
     <nav class="admin-nav">
       <button class="admin-nav-link active" data-section="dashboard">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Dashboard
+      </button>
+      <button class="admin-nav-link" data-section="about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 19a6 6 0 0 1 11 0"/></svg>
+        About Me
       </button>
       <button class="admin-nav-link" data-section="users">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
@@ -54,7 +58,7 @@
       </button>
     </nav>
 
-    <a class="admin-nav-link admin-view-site" href="index.html" target="_blank" rel="noopener">
+    <a class="admin-nav-link admin-view-site" href="../" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
       Saytı gör
     </a>
@@ -88,6 +92,26 @@
         </div>
       </div>
       <p class="admin-note">Bu panel bu brauzerin yaddaşında (localStorage) saxlanılan demo məlumatlarla işləyir. Backend qoşulduqdan sonra eyni interfeys real API-yə bağlana bilər.</p>
+    </section>
+
+    <!-- ABOUT ME -->
+    <section class="admin-section" data-section="about">
+      <h1 class="admin-title">About Me</h1>
+      <form class="auth-form admin-about-form" id="aboutForm">
+        <img class="admin-about-preview" id="aboutPreview" src="../assets/photo.svg" alt="">
+
+        <div class="file-field">
+          <span class="file-field-label">Şəkil</span>
+          <label class="file-choose-btn">
+            Choose File
+            <input type="file" id="aboutPhotoFile" accept="image/*">
+          </label>
+          <span class="file-status" id="aboutPhotoStatus">Seçilməyib</span>
+        </div>
+
+        <textarea id="aboutBody" rows="8" placeholder="Mətn (paraqraflar arasında boş sətir buraxın)" required></textarea>
+        <button type="submit" class="submit-btn">Yadda saxla</button>
+      </form>
     </section>
 
     <!-- USERS -->
@@ -145,10 +169,20 @@
         <h1 class="admin-title">Portfolio</h1>
         <button class="submit-btn admin-add-btn" id="addPortfolioBtn">+ Yeni layihə</button>
       </div>
+
+      <div class="category-panel">
+        <h3 class="category-panel-title">Kateqoriyalar</h3>
+        <div class="category-list" id="categoryList"></div>
+        <form class="category-add-form" id="categoryAddForm">
+          <input type="text" id="categoryNameInput" placeholder="Yeni kateqoriya adı (məs. Blackwork)" required>
+          <button type="submit" class="category-add-btn">+ Əlavə et</button>
+        </form>
+      </div>
+
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
-            <tr><th>Şəkil</th><th>Başlıq</th><th>Üslub</th><th></th></tr>
+            <tr><th>Sıra</th><th>Şəkil</th><th>Başlıq</th><th>Üslub</th><th></th></tr>
           </thead>
           <tbody id="portfolioTableBody"></tbody>
         </table>
@@ -231,12 +265,7 @@
     <form class="auth-form" id="portfolioForm">
       <input type="text" id="portfolioTitle" placeholder="Başlıq" required>
       <input type="text" id="portfolioImg" placeholder="Şəkil yolu (məs. assets/portfolio-1.svg)" required>
-      <select id="portfolioCategory" required>
-        <option value="cover-up">Cover Up</option>
-        <option value="fine-art">Fine Art</option>
-        <option value="realism">Realism</option>
-        <option value="color-realism">Color Realism</option>
-      </select>
+      <select id="portfolioCategory" required></select>
       <button type="submit" class="submit-btn">Yadda saxla</button>
     </form>
   </div>
@@ -255,7 +284,7 @@
   </div>
 </div>
 
-<script src="assets/data.js"></script>
+<script src="../assets/data.js"></script>
 <script src="admin.js"></script>
 </body>
 </html>

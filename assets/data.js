@@ -7,11 +7,28 @@
    olduğu kimi saxlana bilər. */
 
 const STORAGE_KEYS = {
+  about: "site_about",
   seminars: "site_seminars",
   blog: "site_blog",
   portfolio: "site_portfolio",
+  categories: "site_categories",
   users: "site_users"
 };
+
+const DEFAULT_ABOUT = {
+  photo: "assets/photo.svg",
+  paragraphs: [
+    "Salam! Mən Kamal Abdulla — dizayn, texnologiya və ictimai çıxışlar üzərində işləyirəm. Bu sayt mənim işlərimi, seminarlarımı və yeniliklərimi bir yerdə toplayır.",
+    "Missiyam sadədir: mürəkkəb ideyaları başa düşülən və faydalı formaya çevirmək."
+  ]
+};
+
+const DEFAULT_CATEGORIES = [
+  { id: "cover-up", label: "Cover Up" },
+  { id: "fine-art", label: "Fine Art" },
+  { id: "realism", label: "Realism" },
+  { id: "color-realism", label: "Color Realism" }
+];
 
 const DEFAULT_SEMINARS = [
   {
@@ -166,6 +183,12 @@ function setFlag(key, value) {
   }
   memoryStore[key] = value;
 }
+
+function getAbout() { return loadData(STORAGE_KEYS.about, DEFAULT_ABOUT); }
+function setAbout(data) { return saveData(STORAGE_KEYS.about, data); }
+
+function getCategories() { return loadData(STORAGE_KEYS.categories, DEFAULT_CATEGORIES); }
+function setCategories(data) { return saveData(STORAGE_KEYS.categories, data); }
 
 function getSeminars() { return loadData(STORAGE_KEYS.seminars, DEFAULT_SEMINARS); }
 function setSeminars(data) { return saveData(STORAGE_KEYS.seminars, data); }
