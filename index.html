@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kamal Abdulla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SOL PANEL -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <img class="logo" src="assets/logo.svg" alt="Kamal Abdulla">
+
+      <nav class="nav">
+        <button class="nav-link active" data-target="about">About Me</button>
+        <button class="nav-link" data-target="portfolio">Portfolio</button>
+        <button class="nav-link" data-target="seminar">Seminar</button>
+        <button class="nav-link" data-target="blog">Blog</button>
+        <button class="nav-link" data-target="contact">Contact</button>
+      </nav>
+    </div>
+
+    <button class="book-btn" data-target="booking">Book Now</button>
+  </aside>
+
+  <!-- MOBIL HEADER -->
+  <header class="mobile-header">
+    <img class="logo" src="assets/logo.svg" alt="Kamal Abdulla">
+    <button class="burger" id="burgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- SAĞ PANEL (tam ekran, tək bölmə) -->
+  <main class="content">
+    <div class="view-box">
+
+      <section class="view active" data-view="about">
+        <div class="about-layout">
+          <h1 class="view-title about-title">About Me</h1>
+          <div class="about-photo">
+            <img src="assets/photo.svg" alt="Kamal Abdulla">
+          </div>
+          <div class="about-text">
+            <p>Salam! Mən Kamal Abdulla — dizayn, texnologiya və ictimai çıxışlar üzərində işləyirəm. Bu sayt mənim işlərimi, seminarlarımı və yeniliklərimi bir yerdə toplayır.</p>
+            <p>Missiyam sadədir: mürəkkəb ideyaları başa düşülən və faydalı formaya çevirmək.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="portfolio">
+        <h1 class="view-title">Portfolio</h1>
+
+        <div class="portfolio-filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="cover-up">Cover Up</button>
+          <button class="filter-btn" data-filter="fine-art">Fine Art</button>
+          <button class="filter-btn" data-filter="realism">Realism</button>
+          <button class="filter-btn" data-filter="color-realism">Color Realism</button>
+        </div>
+
+        <div class="portfolio-grid" id="portfolioGrid"></div>
+      </section>
+
+      <section class="view" data-view="seminar">
+        <h1 class="view-title">Seminar</h1>
+        <div class="seminar-grid" id="seminarGrid"></div>
+
+        <div class="seminar-footer">
+          <button class="subscribe-btn" id="subscribeBtn">Subscribe</button>
+        </div>
+      </section>
+
+      <section class="view" data-view="blog">
+        <h1 class="view-title">Blog</h1>
+        <div class="blog-list" id="blogList"></div>
+      </section>
+
+      <section class="view" data-view="contact">
+        <h1 class="view-title">Contact</h1>
+
+        <div class="contact-grid">
+          <a class="contact-card" href="mailto:info@kamalabdulla.com">
+            <span class="contact-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            </span>
+            <span class="contact-label">Email</span>
+            <span class="contact-value">info@kamalabdulla.com</span>
+          </a>
+
+          <a class="contact-card" href="https://instagram.com/kamalabdulla" target="_blank" rel="noopener">
+            <span class="contact-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+            </span>
+            <span class="contact-label">Instagram</span>
+            <span class="contact-value">@kamalabdulla</span>
+          </a>
+
+          <a class="contact-card" href="https://wa.me/994501234567" target="_blank" rel="noopener">
+            <span class="contact-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.4-4A8 8 0 1 1 9 19.5z"/><path d="M8.5 9.5c0 3.5 3 6.5 6.5 6.5.6 0 1-.4 1-1v-1.2c0-.4-.3-.7-.7-.8l-1.7-.4c-.3-.1-.6 0-.8.2l-.5.6c-1.2-.6-2.2-1.6-2.8-2.8l.6-.5c.2-.2.3-.5.2-.8L10 7.2c-.1-.4-.4-.7-.8-.7H8c-.6 0-1 .4-1 1 .1.1.1.1 1.5 2z"/></svg>
+            </span>
+            <span class="contact-label">WhatsApp</span>
+            <span class="contact-value">+994 50 123 45 67</span>
+          </a>
+
+          <a class="contact-card" href="https://maps.google.com/?q=Baku,Azerbaijan" target="_blank" rel="noopener">
+            <span class="contact-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            </span>
+            <span class="contact-label">Location</span>
+            <span class="contact-value">Baku, Azerbaijan</span>
+          </a>
+        </div>
+
+        <div class="map-embed">
+          <iframe
+            src="https://www.google.com/maps?q=Baku,Azerbaijan&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Xəritədə məkan">
+          </iframe>
+        </div>
+      </section>
+
+      <section class="view" data-view="booking">
+        <h1 class="view-title">Book Now</h1>
+        <p>Seminar və ya konsultasiya üçün vaxt ayırmaq istəyirsinizsə, aşağıdakı əlaqə vasitələrindən biri ilə müraciət edin.</p>
+        <form class="booking-form" onsubmit="return false;">
+          <input type="text" placeholder="Ad Soyad" required>
+          <input type="email" placeholder="Email" required>
+          <textarea rows="4" placeholder="Mesajınız"></textarea>
+          <button type="submit" class="submit-btn">Göndər</button>
+        </form>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Bağla">&times;</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Əvvəlki">&#10094;</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Növbəti">&#10095;</button>
+</div>
+
+<div class="seminar-modal" id="seminarModal">
+  <div class="seminar-modal-box">
+    <button class="lightbox-close" id="seminarModalClose" aria-label="Bağla">&times;</button>
+
+    <div class="video-frame">
+      <video class="seminar-video" id="seminarVideo" controls playsinline hidden></video>
+      <div class="video-fallback" id="videoFallback">
+        <div class="video-badge" id="videoBadge">Trailer</div>
+        <div class="video-progress"><div class="video-progress-bar" id="videoProgressBar"></div></div>
+      </div>
+    </div>
+
+    <div class="seminar-modal-body">
+      <h3 class="seminar-modal-title" id="seminarModalTitle">—</h3>
+
+      <div class="paywall" id="paywall">
+        <p class="paywall-text">Trailer bitdi. Dərsi sonuna kimi izləmək üçün ödəniş etməlisiniz. Bir dəfə aldıqdan sonra bu seminar hesabınıza bağlanır — başqa yerdən daxil olsanız da yenidən ödəniş etmədən baxa bilərsiniz.</p>
+        <button class="submit-btn" id="unlockBtn">Kilidi aç — <span id="unlockPrice">$0</span></button>
+      </div>
+
+      <div class="unlocked" id="unlocked" hidden>
+        <span class="unlocked-badge">✓ Satın alınıb</span>
+        <p class="paywall-text" id="unlockedText">Bu seminar hesabınıza bağlıdır. Tam dərs burada oynayacaq (backend qoşulduqdan sonra).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="auth-modal" id="authModal">
+  <div class="auth-modal-box">
+    <button class="lightbox-close" id="authModalClose" aria-label="Bağla">&times;</button>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="signin" id="authTabSignin">Sign In</button>
+      <button class="auth-tab" data-tab="signup" id="authTabSignup">Sign Up</button>
+    </div>
+
+    <form class="auth-form" id="signinForm">
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Şifrə" required>
+      <label class="auth-remember">
+        <input type="checkbox" id="rememberMe">
+        <span>Məni xatırla</span>
+      </label>
+      <button type="submit" class="submit-btn">Daxil ol</button>
+    </form>
+
+    <form class="auth-form" id="signupForm" hidden>
+      <input type="text" id="signupFirstName" placeholder="Ad" required>
+      <input type="text" id="signupLastName" placeholder="Soyad" required>
+      <input type="text" id="signupInstagram" placeholder="Instagram səhifəsi (@istifadəçi)">
+      <input type="email" id="signupEmail" placeholder="Email" required>
+      <input type="password" id="signupPassword" placeholder="Şifrə" required>
+      <label class="auth-terms">
+        <input type="checkbox" id="agreeTerms" required>
+        <span>Bütün <a href="#" id="termsLink" class="terms-link">istifadə şərtlərini</a> oxudum, razıyam</span>
+      </label>
+      <button type="submit" class="submit-btn">Qeydiyyatdan keç</button>
+    </form>
+
+    <div class="auth-purchases" id="authPurchases" hidden>
+      <h3 class="auth-purchases-title">Aldığınız seminarlar</h3>
+      <ul class="purchased-list" id="purchasedList"></ul>
+    </div>
+  </div>
+</div>
+
+<div class="terms-modal" id="termsModal">
+  <div class="terms-modal-box">
+    <button class="lightbox-close" id="termsModalClose" aria-label="Bağla">&times;</button>
+    <h3 class="terms-modal-title">İstifadə şərtləri</h3>
+    <div class="terms-modal-body">
+      <p>Bu istifadə şərtləri Kamal Abdulla platformasından (bundan sonra "Platforma") istifadə edən bütün istifadəçilərə şamil olunur. Qeydiyyatdan keçməklə siz aşağıdakı şərtləri qəbul etmiş sayılırsınız.</p>
+
+      <p><strong>Şəxsi məlumatların qorunması.</strong> Qeydiyyat zamanı təqdim etdiyiniz ad, soyad, email və Instagram səhifəsi kimi məlumatlar yalnız hesabınızı yaratmaq və sizinlə əlaqə saxlamaq məqsədilə istifadə olunur. Bu məlumatlar heç bir üçüncü tərəfə — reklam şirkətlərinə, marketinq xidmətlərinə və ya başqa şəxslərə — satılmır, icarəyə verilmir və ya paylaşılmır.</p>
+
+      <p><strong>Ödəniş və kart məlumatları.</strong> Seminar alışları zamanı daxil etdiyiniz kart məlumatları Platforma tərəfindən heç vaxt saxlanılmır və görünmür. Bütün ödəniş əməliyyatları sertifikatlı, təhlükəsiz ödəniş provayderi tərəfindən emal olunur. Platforma yalnız ödənişin uğurlu olub-olmadığı barədə təsdiq siqnalı alır, kartın nömrəsi, son istifadə tarixi və ya CVV kodu kimi həssas məlumatlar bizim serverlərimizə heç vaxt ötürülmür və saxlanılmır.</p>
+
+      <p><strong>Satın alınan məzmun.</strong> Bir dəfə satın aldığınız seminar hesabınıza bağlanır. Başqa cihazdan və ya brauzerdən hesabınıza daxil olduqda həmin seminarı yenidən almağa ehtiyac yoxdur — giriş hüququ hesabınız üzərindən avtomatik tanınır.</p>
+
+      <p><strong>Məlumatların saxlanması.</strong> Məlumatlarınız şifrələnmiş şəkildə saxlanılır və yalnız qanunla tələb olunan hallarda müvafiq orqanlarla paylaşıla bilər. İstənilən vaxt hesabınızın silinməsini və məlumatlarınızın tam şəkildə sistemdən çıxarılmasını tələb edə bilərsiniz.</p>
+
+      <p>Platformadan istifadə etməklə yuxarıdakı şərtləri oxuduğunuzu və qəbul etdiyinizi təsdiqləyirsiniz.</p>
+    </div>
+  </div>
+</div>
+
+<div class="blog-modal" id="blogModal">
+  <button class="lightbox-close blog-modal-close" id="blogModalClose" aria-label="Bağla">&times;</button>
+  <div class="blog-modal-box">
+    <span class="blog-modal-date" id="blogModalDate">—</span>
+    <h2 class="blog-modal-title" id="blogModalTitle">—</h2>
+    <div class="blog-modal-body" id="blogModalBody"></div>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

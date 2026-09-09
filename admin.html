@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Kamal Abdulla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- LOGIN EKRANI -->
+<div class="admin-login" id="adminLogin">
+  <form class="admin-login-box" id="adminLoginForm">
+    <img class="admin-login-logo" src="assets/logo.svg" alt="Kamal Abdulla">
+    <h1 class="admin-login-title">Admin Panel</h1>
+    <p class="admin-login-hint">Demo giriş: <strong>admin</strong> / <strong>admin123</strong></p>
+    <input type="text" id="adminUsername" placeholder="İstifadəçi adı" autocomplete="username" required>
+    <input type="password" id="adminPassword" placeholder="Şifrə" autocomplete="current-password" required>
+    <p class="admin-login-error" id="adminLoginError" hidden>İstifadəçi adı və ya şifrə yanlışdır.</p>
+    <button type="submit" class="submit-btn">Daxil ol</button>
+  </form>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-app" id="adminApp" hidden>
+
+  <aside class="admin-sidebar">
+    <img class="admin-logo" src="assets/logo.svg" alt="Kamal Abdulla">
+
+    <nav class="admin-nav">
+      <button class="admin-nav-link active" data-section="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="admin-nav-link" data-section="users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+        Users
+      </button>
+      <button class="admin-nav-link" data-section="seminars">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>
+        Seminars
+      </button>
+      <button class="admin-nav-link" data-section="blog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/><path d="M8 9h8M8 13h5"/></svg>
+        Blog
+      </button>
+      <button class="admin-nav-link" data-section="portfolio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+        Portfolio
+      </button>
+    </nav>
+
+    <a class="admin-nav-link admin-view-site" href="index.html" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      Saytı gör
+    </a>
+    <button class="admin-nav-link admin-logout" id="adminLogout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+      Çıxış
+    </button>
+  </aside>
+
+  <main class="admin-content">
+
+    <!-- DASHBOARD -->
+    <section class="admin-section active" data-section="dashboard">
+      <h1 class="admin-title">Dashboard</h1>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <span class="stat-value" id="statUsers">0</span>
+          <span class="stat-label">Qeydiyyatlı istifadəçi</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statSeminars">0</span>
+          <span class="stat-label">Seminar</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statBlog">0</span>
+          <span class="stat-label">Blog yazısı</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statPortfolio">0</span>
+          <span class="stat-label">Portfolio layihəsi</span>
+        </div>
+      </div>
+      <p class="admin-note">Bu panel bu brauzerin yaddaşında (localStorage) saxlanılan demo məlumatlarla işləyir. Backend qoşulduqdan sonra eyni interfeys real API-yə bağlana bilər.</p>
+    </section>
+
+    <!-- USERS -->
+    <section class="admin-section" data-section="users">
+      <div class="admin-section-head">
+        <h1 class="admin-title">Users</h1>
+        <button class="submit-btn admin-add-btn" id="addUserBtn">+ Yeni istifadəçi</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Ad</th><th>Soyad</th><th>Instagram</th><th>Email</th><th>Qeydiyyat</th><th></th></tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+        <p class="admin-empty" id="usersEmpty" hidden>Hələ heç bir istifadəçi qeydiyyatdan keçməyib.</p>
+      </div>
+    </section>
+
+    <!-- SEMINARS -->
+    <section class="admin-section" data-section="seminars">
+      <div class="admin-section-head">
+        <h1 class="admin-title">Seminars</h1>
+        <button class="submit-btn admin-add-btn" id="addSeminarBtn">+ Yeni seminar</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Cover</th><th>Başlıq</th><th>Qiymət</th><th>Açıqlama</th><th></th></tr>
+          </thead>
+          <tbody id="seminarsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BLOG -->
+    <section class="admin-section" data-section="blog">
+      <div class="admin-section-head">
+        <h1 class="admin-title">Blog</h1>
+        <button class="submit-btn admin-add-btn" id="addBlogBtn">+ Yeni yazı</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Tarix</th><th>Başlıq</th><th></th></tr>
+          </thead>
+          <tbody id="blogTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PORTFOLIO -->
+    <section class="admin-section" data-section="portfolio">
+      <div class="admin-section-head">
+        <h1 class="admin-title">Portfolio</h1>
+        <button class="submit-btn admin-add-btn" id="addPortfolioBtn">+ Yeni layihə</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Şəkil</th><th>Başlıq</th><th>Üslub</th><th></th></tr>
+          </thead>
+          <tbody id="portfolioTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- USER MODAL -->
+<div class="admin-modal" id="userModal">
+  <div class="admin-modal-box">
+    <button class="lightbox-close" id="userModalClose" aria-label="Bağla">&times;</button>
+    <h3 class="admin-modal-title" id="userModalTitle">Yeni istifadəçi</h3>
+    <form class="auth-form" id="userForm">
+      <input type="text" id="userFirstName" placeholder="Ad" required>
+      <input type="text" id="userLastName" placeholder="Soyad" required>
+      <input type="text" id="userInstagram" placeholder="Instagram səhifəsi (@istifadəçi)">
+      <input type="email" id="userEmail" placeholder="Email" required>
+      <button type="submit" class="submit-btn">Yadda saxla</button>
+    </form>
+  </div>
+</div>
+
+<!-- SEMINAR MODAL -->
+<div class="admin-modal" id="seminarModalAdmin">
+  <div class="admin-modal-box">
+    <button class="lightbox-close" id="seminarAdminModalClose" aria-label="Bağla">&times;</button>
+    <h3 class="admin-modal-title" id="seminarModalAdminTitle">Yeni seminar</h3>
+    <form class="auth-form" id="seminarForm">
+      <input type="text" id="seminarTitle" placeholder="Başlıq (məs. Say Growth)" required>
+      <input type="text" id="seminarPrice" placeholder="Qiymət (məs. $49)" required>
+      <input type="text" id="seminarCover" placeholder="Cover şəkil yolu (məs. assets/seminar-1.svg)" required>
+      <textarea id="seminarDescription" rows="4" placeholder="Açıqlama" required></textarea>
+
+      <div class="file-field">
+        <span class="file-field-label">Trailer video (istəyə bağlı)</span>
+        <label class="file-choose-btn">
+          Choose File
+          <input type="file" id="seminarTrailerFile" accept="video/*">
+        </label>
+        <span class="file-status" id="seminarTrailerStatus">Seçilməyib</span>
+      </div>
+
+      <div class="file-field">
+        <span class="file-field-label">Tam video</span>
+        <label class="file-choose-btn">
+          Choose File
+          <input type="file" id="seminarFullFile" accept="video/*">
+        </label>
+        <span class="file-status" id="seminarFullStatus">Seçilməyib</span>
+      </div>
+
+      <p class="file-hint">Video bu brauzerin daimi yaddaşında saxlanılır — ona görə yalnız kiçik ölçülü fayllar (təxminən 5–8 MB-a qədər) etibarlı işləyir. Bundan böyük fayl seçsəniz, xəbərdarlıq ediləcək və dəyişiklik yalnız bu səhifə açıq qaldığı müddətdə qalacaq.</p>
+
+      <button type="submit" class="submit-btn">Yadda saxla</button>
+    </form>
+  </div>
+</div>
+
+<!-- BLOG MODAL -->
+<div class="admin-modal" id="blogModalAdmin">
+  <div class="admin-modal-box">
+    <button class="lightbox-close" id="blogAdminModalClose" aria-label="Bağla">&times;</button>
+    <h3 class="admin-modal-title" id="blogModalAdminTitle">Yeni yazı</h3>
+    <form class="auth-form" id="blogForm">
+      <input type="text" id="blogDate" placeholder="Tarix (məs. 12 Yan 2026)" required>
+      <input type="text" id="blogTitleInput" placeholder="Başlıq" required>
+      <textarea id="blogBody" rows="8" placeholder="Mətn (paraqraflar arasında boş sətir buraxın)" required></textarea>
+      <button type="submit" class="submit-btn">Yadda saxla</button>
+    </form>
+  </div>
+</div>
+
+<!-- PORTFOLIO MODAL -->
+<div class="admin-modal" id="portfolioModalAdmin">
+  <div class="admin-modal-box">
+    <button class="lightbox-close" id="portfolioAdminModalClose" aria-label="Bağla">&times;</button>
+    <h3 class="admin-modal-title" id="portfolioModalAdminTitle">Yeni layihə</h3>
+    <form class="auth-form" id="portfolioForm">
+      <input type="text" id="portfolioTitle" placeholder="Başlıq" required>
+      <input type="text" id="portfolioImg" placeholder="Şəkil yolu (məs. assets/portfolio-1.svg)" required>
+      <select id="portfolioCategory" required>
+        <option value="cover-up">Cover Up</option>
+        <option value="fine-art">Fine Art</option>
+        <option value="realism">Realism</option>
+        <option value="color-realism">Color Realism</option>
+      </select>
+      <button type="submit" class="submit-btn">Yadda saxla</button>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="admin-modal" id="confirmModal">
+  <div class="admin-modal-box admin-modal-small">
+    <button class="lightbox-close" id="confirmModalClose" aria-label="Bağla">&times;</button>
+    <h3 class="admin-modal-title">Silinsin?</h3>
+    <p class="admin-confirm-text" id="confirmText">Bu elementi silmək istədiyinizə əminsiniz?</p>
+    <div class="admin-confirm-actions">
+      <button class="admin-cancel-btn" id="confirmCancel">Ləğv et</button>
+      <button class="admin-delete-btn" id="confirmDelete">Sil</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

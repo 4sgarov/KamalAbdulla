@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
+  <rect width="400" height="500" fill="#1e1f23"/>
+  <circle cx="200" cy="190" r="90" fill="#2a2c31"/>
+  <path d="M60 470 C60 340 340 340 340 470 Z" fill="#2a2c31"/>
+  <circle cx="200" cy="190" r="90" fill="none" stroke="#e8ff5b" stroke-width="2" opacity="0.5"/>
+  <text x="200" y="240" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="42" font-weight="700" fill="#e8ff5b">KA</text>
+</svg>
