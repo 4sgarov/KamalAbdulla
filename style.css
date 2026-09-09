@@ -151,16 +151,10 @@ html, body {
 
 .view {
   display: none;
-  animation: fadeIn .35s ease;
 }
 
 .view.active {
   display: block;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .view-title {

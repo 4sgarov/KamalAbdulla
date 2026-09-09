@@ -1,3 +1,23 @@
+import { animate, stagger } from "https://cdn.jsdelivr.net/npm/motion@13.2.0/+esm";
+
+/* ---------- MOTION KÖMƏKÇİLƏRİ ----------
+   Modallar üçün ortaq açılış/bağlanış keçidi (Motion.dev). "box" — modal
+   daxilindəki mərkəzi kart (varsa); ötürülməzsə yalnız arxa fon sönür. */
+const EASE_OUT = [0.22, 1, 0.36, 1];
+
+function openModalAnimated(modal, box) {
+  modal.classList.add("show");
+  animate(modal, { opacity: [0, 1] }, { duration: 0.2 });
+  if (box) animate(box, { opacity: [0, 1], scale: [0.95, 1] }, { duration: 0.3, easing: EASE_OUT });
+}
+
+function closeModalAnimated(modal, after) {
+  animate(modal, { opacity: [1, 0] }, { duration: 0.18, easing: "ease-in" }).finished.then(() => {
+    modal.classList.remove("show");
+    if (after) after();
+  });
+}
+
 /* ---------- NAV / VIEW SWITCHING ---------- */
 const navLinks = document.querySelectorAll(".nav-link");
 const bookBtn = document.querySelector(".book-btn");
@@ -14,6 +34,11 @@ function showView(target) {
     link.classList.toggle("active", link.dataset.target === target);
   });
   bookBtn.classList.toggle("active", bookBtn.dataset.target === target);
+
+  const activeView = document.querySelector(`.view[data-view="${target}"]`);
+  if (activeView) {
+    animate(activeView, { opacity: [0, 1], y: [14, 0] }, { duration: 0.4, easing: EASE_OUT });
+  }
 }
 
 navLinks.forEach(link => {
@@ -62,6 +87,7 @@ function renderPortfolio() {
       <img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.title)}">
     </button>
   `).join("");
+  animate(".portfolio-item", { opacity: [0, 1], scale: [0.92, 1] }, { duration: 0.35, delay: stagger(0.035), easing: EASE_OUT });
 }
 
 /* ---------- PORTFOLIO FILTERS ---------- */
@@ -108,17 +134,17 @@ function renderLightbox() {
   const item = visiblePortfolioItems()[currentIndex];
   lightboxImg.src = item.dataset.img;
   lightboxImg.alt = item.dataset.title || "";
+  animate(lightboxImg, { opacity: [0, 1] }, { duration: 0.25, easing: EASE_OUT });
 }
 
 function openLightbox(item) {
   currentIndex = visiblePortfolioItems().indexOf(item);
   renderLightbox();
-  lightbox.classList.add("show");
+  openModalAnimated(lightbox, lightboxImg);
 }
 
 function closeLightbox() {
-  lightbox.classList.remove("show");
-  lightboxImg.src = "";
+  closeModalAnimated(lightbox, () => { lightboxImg.src = ""; });
 }
 
 function showPrev() {
@@ -179,6 +205,7 @@ function renderSeminars() {
    istifadəçi başqa cihazdan/brauzerdən daxil olanda da seminarı yenidən
    almasın. Ödəniş inteqrasiyası (Stripe və s.) da yalnız serverdə edilməlidir. */
 const seminarModal = document.getElementById("seminarModal");
+const seminarModalBox = document.querySelector(".seminar-modal-box");
 const seminarModalClose = document.getElementById("seminarModalClose");
 const seminarModalTitle = document.getElementById("seminarModalTitle");
 const seminarVideo = document.getElementById("seminarVideo");
@@ -253,7 +280,7 @@ function openSeminarModal(btn) {
   activeSeminar = seminar || { id: btn.dataset.seminarId };
   seminarModalTitle.textContent = btn.dataset.title;
   unlockPrice.textContent = btn.dataset.price;
-  seminarModal.classList.add("show");
+  openModalAnimated(seminarModal, seminarModalBox);
 
   if (isPurchased(activeSeminar.id)) {
     showUnlockedState();
@@ -285,12 +312,12 @@ function openSeminarModal(btn) {
 }
 
 function closeSeminarModal() {
-  seminarModal.classList.remove("show");
   clearTimeout(trailerTimer);
   seminarVideo.removeEventListener("ended", onTrailerEnded);
   stopSeminarVideo();
   videoProgressBar.classList.remove("playing");
   videoProgressBar.style.width = "0%";
+  closeModalAnimated(seminarModal);
 }
 
 seminarGrid.addEventListener("click", e => {
@@ -319,6 +346,7 @@ document.addEventListener("keydown", e => {
    bu, backend-də login/qeydiyyat endpoint-lərinə bağlanmalıdır. */
 const subscribeBtn = document.getElementById("subscribeBtn");
 const authModal = document.getElementById("authModal");
+const authModalBox = document.querySelector(".auth-modal-box");
 const authModalClose = document.getElementById("authModalClose");
 const authTabs = document.querySelectorAll(".auth-tab");
 const signinForm = document.getElementById("signinForm");
@@ -337,11 +365,11 @@ function openAuthModal() {
   setAuthTab("signin");
   signinForm.reset();
   signupForm.reset();
-  authModal.classList.add("show");
+  openModalAnimated(authModal, authModalBox);
 }
 
 function closeAuthModal() {
-  authModal.classList.remove("show");
+  closeModalAnimated(authModal);
 }
 
 function renderPurchasedList() {
@@ -407,30 +435,32 @@ document.addEventListener("keydown", e => {
 /* ---------- TERMS MODAL ---------- */
 const termsLink = document.getElementById("termsLink");
 const termsModal = document.getElementById("termsModal");
+const termsModalBox = document.querySelector(".terms-modal-box");
 const termsModalClose = document.getElementById("termsModalClose");
+
+function closeTermsModal() {
+  closeModalAnimated(termsModal);
+}
 
 termsLink.addEventListener("click", e => {
   e.preventDefault();
-  termsModal.classList.add("show");
+  openModalAnimated(termsModal, termsModalBox);
 });
 
-termsModalClose.addEventListener("click", () => {
-  termsModal.classList.remove("show");
-});
+termsModalClose.addEventListener("click", closeTermsModal);
 
 termsModal.addEventListener("click", e => {
-  if (e.target === termsModal) termsModal.classList.remove("show");
+  if (e.target === termsModal) closeTermsModal();
 });
 
 document.addEventListener("keydown", e => {
-  if (termsModal.classList.contains("show") && e.key === "Escape") {
-    termsModal.classList.remove("show");
-  }
+  if (termsModal.classList.contains("show") && e.key === "Escape") closeTermsModal();
 });
 
 /* ---------- RENDER + READ: BLOG ---------- */
 const blogList = document.getElementById("blogList");
 const blogModal = document.getElementById("blogModal");
+const blogModalBox = document.querySelector(".blog-modal-box");
 const blogModalClose = document.getElementById("blogModalClose");
 const blogModalDate = document.getElementById("blogModalDate");
 const blogModalTitle = document.getElementById("blogModalTitle");
@@ -459,12 +489,12 @@ function openBlogPost(id) {
     blogModalBody.appendChild(p);
   });
 
-  blogModal.classList.add("show");
+  openModalAnimated(blogModal, blogModalBox);
   blogModal.scrollTop = 0;
 }
 
 function closeBlogPost() {
-  blogModal.classList.remove("show");
+  closeModalAnimated(blogModal);
 }
 
 blogList.addEventListener("click", e => {
