@@ -1,3 +1,14 @@
+/* ---------- TOAST BİLDİRİŞİ ---------- */
+const adminToast = document.getElementById("adminToast");
+let toastTimer = null;
+
+function showToast(message) {
+  adminToast.textContent = message;
+  adminToast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => adminToast.classList.remove("show"), 2200);
+}
+
 /* ---------- İKON QISAYOLLARI ---------- */
 const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
 const ICON_DELETE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
@@ -155,6 +166,8 @@ aboutForm.addEventListener("submit", e => {
   const saved = setAbout(data);
   if (!saved) {
     alert("Diqqət: seçdiyiniz şəkil brauzerin daimi yaddaşına sığmadı. Dəyişiklik yalnız bu səhifə açıq qaldığı müddətdə görünəcək — daha kiçik ölçülü şəkil seçin.");
+  } else {
+    showToast("Yadda saxlanıldı ✓");
   }
   renderAboutForm();
 });
@@ -260,6 +273,8 @@ userForm.addEventListener("submit", e => {
   const saved = setUsers(users);
   if (!saved) {
     alert("Diqqət: dəyişiklik brauzerin daimi yaddaşına sığmadı və yalnız bu səhifə açıq qaldığı müddətdə görünəcək.");
+  } else {
+    showToast("Yadda saxlanıldı ✓");
   }
   closeUserModal();
   renderUsersTable();
@@ -376,6 +391,8 @@ seminarForm.addEventListener("submit", e => {
   const saved = setSeminars(seminars);
   if (!saved) {
     alert("Diqqət: seçdiyiniz video brauzerin daimi yaddaşına sığmadı. Dəyişiklik yalnız bu səhifə açıq qaldığı müddətdə görünəcək — səhifəni yeniləsəniz itəcək. Daha kiçik ölçülü video seçin.");
+  } else {
+    showToast("Yadda saxlanıldı ✓");
   }
 
   closeSeminarModal();
@@ -475,6 +492,8 @@ blogForm.addEventListener("submit", e => {
   const saved = setBlogPosts(posts);
   if (!saved) {
     alert("Diqqət: dəyişiklik brauzerin daimi yaddaşına sığmadı və yalnız bu səhifə açıq qaldığı müddətdə görünəcək.");
+  } else {
+    showToast("Yadda saxlanıldı ✓");
   }
   closeBlogModal();
   renderBlogTable();
@@ -635,6 +654,8 @@ portfolioForm.addEventListener("submit", e => {
   const saved = setPortfolio(items);
   if (!saved) {
     alert("Diqqət: dəyişiklik brauzerin daimi yaddaşına sığmadı və yalnız bu səhifə açıq qaldığı müddətdə görünəcək.");
+  } else {
+    showToast("Yadda saxlanıldı ✓");
   }
   closePortfolioModal();
   renderPortfolioTable();

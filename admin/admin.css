@@ -601,6 +601,30 @@
   color: #fff;
 }
 
+/* ---------- TOAST BİLDİRİŞİ ---------- */
+.admin-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translate(-50%, 20px);
+  background: var(--accent);
+  color: #101010;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 24px;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 200;
+}
+
+.admin-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 900px) {
   .admin-app {
