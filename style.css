@@ -218,12 +218,20 @@ html, body {
 /* ---------- PORTFOLIO ---------- */
 .portfolio-filters {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: 8px;
   margin-bottom: 24px;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.portfolio-filters::-webkit-scrollbar {
+  display: none;
 }
 
 .filter-btn {
+  flex-shrink: 0;
   background: var(--panel-2);
   border: none;
   color: var(--muted);
