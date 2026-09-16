@@ -1,0 +1,45 @@
+# Hostinger-ə avtomatik deploy.
+# main-ə hər push-da (və ya Actions səhifəsindən "Run workflow" ilə)
+# sayt faylları FTP vasitəsilə kamalabdulla.com-a yüklənir.
+#
+# Repo → Settings → Secrets and variables → Actions → Secrets:
+#   FTP_SERVER    – ftp.kamalabdulla.com
+#   FTP_USERNAME  – hPanel → Files → FTP Accounts-dakı istifadəçi adı
+#   FTP_PASSWORD  – həmin hesabın şifrəsi
+# Variables (istəyə bağlı):
+#   FTP_SERVER_DIR – FTP kökündən public_html-ə yol; default "public_html/".
+#                    FTP hesabı birbaşa public_html-ə açılırsa "./" yazın.
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload site via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Hostinger explicit FTP over TLS dəstəkləyir; işləməsə "ftp" edin
+          protocol: ftps
+          server-dir: ${{ vars.FTP_SERVER_DIR || 'public_html/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            **/.DS_Store
+            preview.html
+            admin-preview.html
+            *.log
