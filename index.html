@@ -124,10 +124,28 @@
       <section class="view" data-view="booking">
         <h1 class="view-title">Book Now</h1>
         <p>Seminar və ya konsultasiya üçün vaxt ayırmaq istəyirsinizsə, aşağıdakı əlaqə vasitələrindən biri ilə müraciət edin.</p>
-        <form class="booking-form" onsubmit="return false;">
-          <input type="text" placeholder="Ad Soyad" required>
-          <input type="email" placeholder="Email" required>
-          <textarea rows="4" placeholder="Mesajınız"></textarea>
+        <form class="booking-form" id="bookingForm" novalidate>
+          <input type="text" id="bookingName" placeholder="Ad Soyad" required>
+          <input type="email" id="bookingEmail" placeholder="Email" required>
+          <input type="tel" id="bookingPhone" placeholder="Telefon nömrəsi" required>
+
+          <!-- Kalendar: seçilmiş tarix gizli input-da (YYYY-MM-DD) saxlanılır -->
+          <div class="booking-calendar" id="bookingCalendar">
+            <div class="calendar-header">
+              <button type="button" class="calendar-nav" id="calendarPrev" aria-label="Əvvəlki ay">&#8249;</button>
+              <span class="calendar-month" id="calendarMonth"></span>
+              <button type="button" class="calendar-nav" id="calendarNext" aria-label="Növbəti ay">&#8250;</button>
+            </div>
+            <div class="calendar-weekdays">
+              <span>B.e</span><span>Ç.a</span><span>Ç</span><span>C.a</span><span>C</span><span>Ş</span><span>B</span>
+            </div>
+            <div class="calendar-days" id="calendarDays"></div>
+            <p class="calendar-selected" id="calendarSelected">Tarix seçin</p>
+            <input type="hidden" id="bookingDate" name="date">
+          </div>
+
+          <textarea rows="4" id="bookingMessage" placeholder="Mesajınız"></textarea>
+          <p class="booking-note" id="bookingNote" hidden></p>
           <button type="submit" class="submit-btn">Göndər</button>
         </form>
       </section>

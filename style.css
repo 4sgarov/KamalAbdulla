@@ -1021,6 +1021,95 @@ html, body {
 }
 .submit-btn:hover { transform: translateY(-2px); }
 
+/* Kalendar */
+.booking-calendar {
+  background: var(--panel-2);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 16px;
+  user-select: none;
+}
+
+.booking-calendar.error {
+  border-color: #ff6b6b;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.calendar-month {
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.calendar-nav {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.calendar-nav:hover { background: var(--accent); color: #101010; }
+.calendar-nav:disabled { opacity: .3; cursor: default; background: var(--panel); color: var(--text); }
+
+.calendar-weekdays,
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.calendar-weekdays span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 0 8px;
+}
+
+.calendar-day {
+  aspect-ratio: 1 / 1;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.calendar-day:hover { background: var(--panel); }
+.calendar-day.today { box-shadow: inset 0 0 0 1px var(--accent); }
+.calendar-day.selected,
+.calendar-day.selected:hover { background: var(--accent); color: #101010; font-weight: 700; }
+.calendar-day.muted { color: var(--muted); opacity: .45; }
+.calendar-day:disabled { color: var(--muted); opacity: .25; cursor: default; background: transparent; }
+
+.calendar-selected {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.calendar-selected.has-date { color: var(--accent); font-weight: 600; }
+
+.booking-note {
+  margin: 0;
+  font-size: 14px;
+  color: #ff6b6b;
+}
+.booking-note.success { color: var(--accent); }
+
 /* ---------- OVERLAY (mobile menu) ---------- */
 .overlay {
   display: none;

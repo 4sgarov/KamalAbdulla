@@ -507,6 +507,146 @@ document.addEventListener("keydown", e => {
   if (blogModal.classList.contains("show") && e.key === "Escape") closeBlogPost();
 });
 
+/* ---------- BOOKING: KALENDAR ----------
+   Sadə aylıq kalendar. Həftə bazar ertəsindən başlayır, keçmiş günlər
+   seçilə bilmir. Seçilmiş tarix gizli #bookingDate input-unda
+   "YYYY-MM-DD" formatında saxlanılır. */
+const bookingForm = document.getElementById("bookingForm");
+const bookingCalendar = document.getElementById("bookingCalendar");
+const calendarPrev = document.getElementById("calendarPrev");
+const calendarNext = document.getElementById("calendarNext");
+const calendarMonth = document.getElementById("calendarMonth");
+const calendarDays = document.getElementById("calendarDays");
+const calendarSelected = document.getElementById("calendarSelected");
+const bookingDate = document.getElementById("bookingDate");
+const bookingNote = document.getElementById("bookingNote");
+
+const AZ_MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun",
+  "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"];
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+/* Hazırda göstərilən ay (ayın 1-i) */
+let calendarCursor = new Date(today.getFullYear(), today.getMonth(), 1);
+let selectedDate = null;
+
+function toISODate(d) {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function formatAzDate(d) {
+  return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function renderCalendar() {
+  const year = calendarCursor.getFullYear();
+  const month = calendarCursor.getMonth();
+  calendarMonth.textContent = `${AZ_MONTHS[month]} ${year}`;
+
+  /* Cari aydan geriyə getmək olmaz — keçmiş günlər onsuz da seçilmir */
+  calendarPrev.disabled = year === today.getFullYear() && month === today.getMonth();
+
+  const first = new Date(year, month, 1);
+  /* getDay(): 0 = bazar. Bazar ertəsini 0 edirik ki, həftə B.e-dən başlasın */
+  const offset = (first.getDay() + 6) % 7;
+  const gridStart = new Date(year, month, 1 - offset);
+
+  /* Həmişə 6 sıra (42 xana) — ay dəyişəndə blokun hündürlüyü tullanmır */
+  calendarDays.innerHTML = "";
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "calendar-day";
+    btn.textContent = d.getDate();
+    btn.dataset.date = toISODate(d);
+
+    const inMonth = d.getMonth() === month;
+    if (!inMonth) btn.classList.add("muted");
+    if (d < today) btn.disabled = true;
+    if (d.getTime() === today.getTime()) btn.classList.add("today");
+    if (selectedDate && d.getTime() === selectedDate.getTime()) btn.classList.add("selected");
+
+    calendarDays.appendChild(btn);
+  }
+}
+
+function selectDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  selectedDate = new Date(y, m - 1, d);
+  bookingDate.value = iso;
+  calendarSelected.textContent = `Seçilmiş tarix: ${formatAzDate(selectedDate)}`;
+  calendarSelected.classList.add("has-date");
+  bookingCalendar.classList.remove("error");
+  hideBookingNote();
+
+  /* Başqa ayın gününə klikləyəndə həmin aya keçirik */
+  if (selectedDate.getMonth() !== calendarCursor.getMonth() ||
+      selectedDate.getFullYear() !== calendarCursor.getFullYear()) {
+    calendarCursor = new Date(y, m - 1, 1);
+  }
+  renderCalendar();
+}
+
+function clearSelectedDate() {
+  selectedDate = null;
+  bookingDate.value = "";
+  calendarSelected.textContent = "Tarix seçin";
+  calendarSelected.classList.remove("has-date");
+}
+
+function shiftCalendarMonth(delta) {
+  calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + delta, 1);
+  renderCalendar();
+  animate(calendarDays, { opacity: [0, 1] }, { duration: 0.2 });
+}
+
+calendarPrev.addEventListener("click", () => shiftCalendarMonth(-1));
+calendarNext.addEventListener("click", () => shiftCalendarMonth(1));
+
+calendarDays.addEventListener("click", e => {
+  const btn = e.target.closest(".calendar-day");
+  if (btn && !btn.disabled) selectDate(btn.dataset.date);
+});
+
+function showBookingNote(text, isSuccess) {
+  bookingNote.textContent = text;
+  bookingNote.classList.toggle("success", !!isSuccess);
+  bookingNote.hidden = false;
+}
+
+function hideBookingNote() {
+  bookingNote.hidden = true;
+}
+
+/* Formada novalidate var — yoxlamanı özümüz edirik ki, mesajlar
+   brauzer dilində yox, Azərbaycan dilində görünsün */
+bookingForm.addEventListener("submit", e => {
+  e.preventDefault();
+
+  const name = document.getElementById("bookingName").value.trim();
+  const email = document.getElementById("bookingEmail").value.trim();
+  const phone = document.getElementById("bookingPhone").value.trim();
+
+  if (!name) { showBookingNote("Zəhmət olmasa ad və soyadınızı yazın."); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showBookingNote("Düzgün email ünvanı yazın."); return; }
+  if (!phone) { showBookingNote("Telefon nömrənizi yazın."); return; }
+  if (!bookingDate.value) {
+    bookingCalendar.classList.add("error");
+    showBookingNote("Kalendardan tarix seçin.");
+    return;
+  }
+
+  showBookingNote(`Müraciətiniz qəbul edildi — ${formatAzDate(selectedDate)}. Tezliklə sizinlə əlaqə saxlayacağıq.`, true);
+  bookingForm.reset();
+  clearSelectedDate();
+  calendarCursor = new Date(today.getFullYear(), today.getMonth(), 1);
+  renderCalendar();
+});
+
 /* ---------- BAŞQA TAB-DAN CANLI YENİLƏNMƏ ----------
    Admin Panel (/admin) başqa bir tab-da açıq olarkən məzmunu
    dəyişəndə, "storage" hadisəsi bu tab-a da çatır və uyğun bölməni
@@ -527,3 +667,4 @@ renderPortfolioFilters();
 renderPortfolio();
 renderSeminars();
 renderBlogList();
+renderCalendar();
