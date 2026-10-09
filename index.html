@@ -123,7 +123,7 @@
 
       <section class="view" data-view="booking">
         <h1 class="view-title">Book Now</h1>
-        <p>Seminar və ya konsultasiya üçün vaxt ayırmaq istəyirsinizsə, aşağıdakı əlaqə vasitələrindən biri ilə müraciət edin.</p>
+        <p>Seminar və ya konsultasiya üçün məlumatlarınızı yazın, uyğun gün və saatı seçin, ödəniş növünü qeyd edin.</p>
         <form class="booking-form" id="bookingForm" novalidate>
           <input type="text" id="bookingName" placeholder="Ad Soyad" required>
           <input type="email" id="bookingEmail" placeholder="Email" required>
@@ -144,9 +144,38 @@
             <input type="hidden" id="bookingDate" name="date">
           </div>
 
+          <!-- Saatlar: tarix seçiləndən sonra görünür, seçilmiş saat gizli input-da (HH:MM) -->
+          <div class="booking-step" id="bookingTimes" hidden>
+            <p class="booking-step-title">Saat seçin</p>
+            <div class="time-slots" id="timeSlots"></div>
+            <input type="hidden" id="bookingTime" name="time">
+          </div>
+
+          <!-- Ödəniş növü: saat seçiləndən sonra görünür -->
+          <fieldset class="booking-step" id="bookingPayment" hidden>
+            <legend class="booking-step-title">Ödəniş növü</legend>
+            <div class="payment-options">
+              <label class="payment-option">
+                <input type="radio" name="payment" value="card">
+                <span class="payment-option-title">Kartla onlayn</span>
+                <span class="payment-option-desc">Visa / Mastercard</span>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="transfer">
+                <span class="payment-option-title">Bank köçürməsi</span>
+                <span class="payment-option-desc">Rekvizitlər emailə göndərilir</span>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="cash">
+                <span class="payment-option-title">Nağd</span>
+                <span class="payment-option-desc">Görüş zamanı yerində</span>
+              </label>
+            </div>
+          </fieldset>
+
           <textarea rows="4" id="bookingMessage" placeholder="Mesajınız"></textarea>
           <p class="booking-note" id="bookingNote" hidden></p>
-          <button type="submit" class="submit-btn">Göndər</button>
+          <button type="submit" class="submit-btn">Rezerv et</button>
         </form>
       </section>
 

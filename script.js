@@ -582,6 +582,10 @@ function selectDate(iso) {
   calendarSelected.classList.add("has-date");
   bookingCalendar.classList.remove("error");
   hideBookingNote();
+  /* Tarix dəyişəndə əvvəlki saat artıq keçərli olmaya bilər — yenidən seçilir */
+  clearSelectedTime();
+  showStep(bookingTimes);
+  loadBookedTimes();
 
   /* Başqa ayın gününə klikləyəndə həmin aya keçirik */
   if (selectedDate.getMonth() !== calendarCursor.getMonth() ||
@@ -596,7 +600,109 @@ function clearSelectedDate() {
   bookingDate.value = "";
   calendarSelected.textContent = "Tarix seçin";
   calendarSelected.classList.remove("has-date");
+  clearSelectedTime();
+  bookingTimes.hidden = true;
 }
+
+/* ---------- BOOKING: SAAT VƏ ÖDƏNİŞ ----------
+   Tarix seçiləndən sonra saatlar, saat seçiləndən sonra ödəniş növü görünür.
+   Bu gün üçün artıq keçmiş saatlar seçilə bilmir. */
+const bookingTimes = document.getElementById("bookingTimes");
+const timeSlots = document.getElementById("timeSlots");
+const bookingTime = document.getElementById("bookingTime");
+const bookingPayment = document.getElementById("bookingPayment");
+
+/* api/bookings.php-dəki TIME_SLOTS ilə eyni olmalıdır */
+const TIME_SLOTS = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
+  "17:00", "18:00", "19:00", "20:00"];
+const BOOKINGS_API = "/api/bookings.php";
+
+/* Seçilmiş gün üçün serverdən gələn dolu saatlar */
+let bookedTimes = [];
+let slotsRequest = 0;
+
+const PAYMENT_LABELS = {
+  card: "Kartla onlayn",
+  transfer: "Bank köçürməsi",
+  cash: "Nağd",
+};
+
+function showStep(el) {
+  if (!el.hidden) return;
+  el.hidden = false;
+  animate(el, { opacity: [0, 1], y: [8, 0] }, { duration: 0.25 });
+}
+
+function renderTimeSlots() {
+  const now = new Date();
+  const isToday = selectedDate && selectedDate.getTime() === today.getTime();
+
+  timeSlots.innerHTML = "";
+  TIME_SLOTS.forEach(t => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "time-slot";
+    btn.textContent = t;
+    btn.dataset.time = t;
+
+    const [h, m] = t.split(":").map(Number);
+    if (isToday && (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes()))) {
+      btn.disabled = true;
+    }
+    if (bookedTimes.includes(t)) {
+      btn.disabled = true;
+      btn.classList.add("booked");
+      btn.title = "Bu saat doludur";
+      btn.innerHTML = `${t}<small>Dolu</small>`;
+    }
+    if (bookingTime.value === t) btn.classList.add("selected");
+    timeSlots.appendChild(btn);
+  });
+}
+
+/* Seçilmiş gün üçün dolu saatları serverdən alır. Tez-tez tarix dəyişəndə
+   köhnə cavab yenisinin üstünə yazılmasın deyə sorğuları nömrələyirik. */
+async function loadBookedTimes() {
+  const req = ++slotsRequest;
+  bookedTimes = [];
+  timeSlots.classList.add("loading");
+  renderTimeSlots();
+  try {
+    const res = await fetch(`${BOOKINGS_API}?date=${bookingDate.value}`, { cache: "no-store" });
+    const data = await res.json();
+    if (req !== slotsRequest) return;
+    bookedTimes = Array.isArray(data.booked) ? data.booked : [];
+  } catch {
+    if (req !== slotsRequest) return;
+    showBookingNote("Boş saatları yükləmək olmadı. İnternet bağlantınızı yoxlayın.");
+  }
+  timeSlots.classList.remove("loading");
+  if (bookedTimes.includes(bookingTime.value)) clearSelectedTime();
+  renderTimeSlots();
+}
+
+function clearSelectedTime() {
+  bookingTime.value = "";
+  bookingTimes.classList.remove("error");
+  bookingPayment.hidden = true;
+  bookingPayment.classList.remove("error");
+  bookingForm.querySelectorAll('input[name="payment"]').forEach(r => { r.checked = false; });
+}
+
+timeSlots.addEventListener("click", e => {
+  const btn = e.target.closest(".time-slot");
+  if (!btn || btn.disabled) return;
+  bookingTime.value = btn.dataset.time;
+  bookingTimes.classList.remove("error");
+  hideBookingNote();
+  renderTimeSlots();
+  showStep(bookingPayment);
+});
+
+bookingPayment.addEventListener("change", () => {
+  bookingPayment.classList.remove("error");
+  hideBookingNote();
+});
 
 function shiftCalendarMonth(delta) {
   calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + delta, 1);
@@ -624,12 +730,13 @@ function hideBookingNote() {
 
 /* Formada novalidate var — yoxlamanı özümüz edirik ki, mesajlar
    brauzer dilində yox, Azərbaycan dilində görünsün */
-bookingForm.addEventListener("submit", e => {
+bookingForm.addEventListener("submit", async e => {
   e.preventDefault();
 
   const name = document.getElementById("bookingName").value.trim();
   const email = document.getElementById("bookingEmail").value.trim();
   const phone = document.getElementById("bookingPhone").value.trim();
+  const message = document.getElementById("bookingMessage").value.trim();
 
   if (!name) { showBookingNote("Zəhmət olmasa ad və soyadınızı yazın."); return; }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showBookingNote("Düzgün email ünvanı yazın."); return; }
@@ -639,8 +746,56 @@ bookingForm.addEventListener("submit", e => {
     showBookingNote("Kalendardan tarix seçin.");
     return;
   }
+  if (!bookingTime.value) {
+    bookingTimes.classList.add("error");
+    showBookingNote("Saat seçin.");
+    return;
+  }
+  const payment = bookingForm.querySelector('input[name="payment"]:checked');
+  if (!payment) {
+    bookingPayment.classList.add("error");
+    showBookingNote("Ödəniş növünü seçin.");
+    return;
+  }
 
-  showBookingNote(`Müraciətiniz qəbul edildi — ${formatAzDate(selectedDate)}. Tezliklə sizinlə əlaqə saxlayacağıq.`, true);
+  /* Saat serverdə yalnız bir nəfərə verilir — eyni anda başqası tutubsa 409 gəlir */
+  const submitBtn = bookingForm.querySelector(".submit-btn");
+  submitBtn.disabled = true;
+  hideBookingNote();
+  let res, data;
+  try {
+    res = await fetch(BOOKINGS_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name, email, phone, message,
+        date: bookingDate.value,
+        time: bookingTime.value,
+        payment: payment.value,
+      }),
+    });
+    data = await res.json();
+  } catch {
+    submitBtn.disabled = false;
+    showBookingNote("Rezervasiyanı göndərmək olmadı. İnternet bağlantınızı yoxlayıb yenidən cəhd edin.");
+    return;
+  }
+  submitBtn.disabled = false;
+
+  if (res.status === 409) {
+    bookedTimes = Array.isArray(data.booked) ? data.booked : bookedTimes;
+    clearSelectedTime();
+    renderTimeSlots();
+    bookingTimes.classList.add("error");
+    showBookingNote(data.error);
+    return;
+  }
+  if (!res.ok) {
+    showBookingNote(data.error || "Xəta baş verdi. Yenidən cəhd edin.");
+    return;
+  }
+
+  showBookingNote(`Rezervasiyanız qəbul edildi — ${formatAzDate(selectedDate)}, saat ${bookingTime.value}. Ödəniş: ${PAYMENT_LABELS[payment.value]}. Tezliklə sizinlə əlaqə saxlayacağıq.`, true);
   bookingForm.reset();
   clearSelectedDate();
   calendarCursor = new Date(today.getFullYear(), today.getMonth(), 1);
