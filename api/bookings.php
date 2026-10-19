@@ -2,7 +2,8 @@
 /**
  * Rezervasiyalar üçün ictimai API.
  *
- * GET  ?date=YYYY-MM-DD  → həmin gün təsdiqlənmiş (dolu) saatlar: {"booked": ["12:00", ...]}
+ * GET  ?date=YYYY-MM-DD  → həmin gün təsdiqlənmiş (dolu) saatlar və saat başı qiymət:
+ *                          {"booked": ["12:00", ...], "price_per_hour": 25}
  *                          (şəxsi məlumat qaytarılmır)
  * POST (JSON)            → yeni rezervasiya sorğusu (time — başlanğıc, end — bitmə),
  *                          status "pending". Saatlar yalnız admin təsdiqlədikdən sonra
@@ -22,7 +23,7 @@ if ($method === 'GET') {
     $fh = open_store(false);
     $bookings = read_store($fh);
     close_store($fh);
-    respond(200, ['booked' => booked_times($bookings, $date)]);
+    respond(200, ['booked' => booked_times($bookings, $date), 'price_per_hour' => get_settings()['price_per_hour']]);
 }
 
 if ($method !== 'POST') {
@@ -61,6 +62,9 @@ if (array_intersect(range_hours($time, $end), booked_times($bookings, $date))) {
     respond(409, ['error' => 'Seçdiyiniz aralıqda dolu saat var. Başqa vaxt seçin.', 'booked' => booked_times($bookings, $date)]);
 }
 
+/* Qiymət serverdə hesablanır — brauzerdən gələn məbləğə etibar edilmir */
+$pricePerHour = get_settings()['price_per_hour'];
+
 $booking = [
     'id' => bin2hex(random_bytes(8)),
     'name' => $name,
@@ -69,6 +73,8 @@ $booking = [
     'time' => $time,
     'end' => $end,
     'message' => $message,
+    'price_per_hour' => $pricePerHour,
+    'total' => $pricePerHour * count(range_hours($time, $end)),
     'status' => 'pending',
     'created_at' => date('c'),
 ];
@@ -77,4 +83,4 @@ $bookings[] = $booking;
 write_store($fh, $bookings);
 close_store($fh);
 
-respond(201, ['ok' => true, 'id' => $booking['id']]);
+respond(201, ['ok' => true, 'id' => $booking['id'], 'total' => $booking['total']]);

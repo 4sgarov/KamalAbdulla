@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=20261019-3">
-<link rel="stylesheet" href="admin.css?v=20261019-3">
+<link rel="stylesheet" href="../style.css?v=20261019-4">
+<link rel="stylesheet" href="admin.css?v=20261019-4">
 </head>
 <body>
 
@@ -58,6 +58,10 @@
       <button class="admin-nav-link" data-section="portfolio">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
         Portfolio
+      </button>
+      <button class="admin-nav-link" data-section="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Ayarlar
       </button>
     </nav>
 
@@ -112,13 +116,36 @@
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
-            <tr><th>Tarix</th><th>Saat</th><th>Ad Soyad</th><th>Telefon</th><th>Qeyd</th><th>Status</th><th></th></tr>
+            <tr><th>Tarix</th><th>Saat</th><th>Ad Soyad</th><th>Telefon</th><th>Məbləğ</th><th>Qeyd</th><th>Status</th><th></th></tr>
           </thead>
           <tbody id="bookingsTableBody"></tbody>
         </table>
         <p class="admin-empty" id="bookingsEmpty" hidden>Bu bölmədə rezervasiya yoxdur.</p>
       </div>
       <p class="admin-note">Təsdiqlənən rezervasiyanın saat aralığı həmin gün saytda "Dolu" görünür və o saatları başqası tuta bilmir. İmtina edilən saatlar yenidən boşalır.</p>
+    </section>
+
+    <!-- AYARLAR -->
+    <section class="admin-section" data-section="settings">
+      <h1 class="admin-title">Ayarlar</h1>
+
+      <form class="auth-form admin-settings-form" id="priceForm">
+        <h2 class="admin-settings-title">Rezervasiya qiyməti</h2>
+        <label class="admin-field">
+          <span>Saat başı qiymət (AZN)</span>
+          <input type="number" id="pricePerHour" min="0" step="1" required>
+        </label>
+        <p class="admin-settings-hint" id="priceExample"></p>
+        <button type="submit" class="submit-btn">Yadda saxla</button>
+      </form>
+
+      <form class="auth-form admin-settings-form" id="passwordForm">
+        <h2 class="admin-settings-title">Admin şifrəsini dəyiş</h2>
+        <input type="password" id="newPassword" placeholder="Yeni şifrə (ən azı 8 simvol)" autocomplete="new-password" minlength="8" required>
+        <input type="password" id="newPasswordRepeat" placeholder="Yeni şifrəni təkrar yazın" autocomplete="new-password" minlength="8" required>
+        <p class="admin-login-error" id="passwordError" hidden></p>
+        <button type="submit" class="submit-btn">Şifrəni dəyiş</button>
+      </form>
     </section>
 
     <!-- ABOUT ME -->
@@ -313,7 +340,7 @@
 
 <div class="admin-toast" id="adminToast"></div>
 
-<script src="../assets/data.js?v=20261019-3"></script>
-<script src="admin.js?v=20261019-3"></script>
+<script src="../assets/data.js?v=20261019-4"></script>
+<script src="admin.js?v=20261019-4"></script>
 </body>
 </html>

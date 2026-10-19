@@ -44,6 +44,7 @@ const I18N = {
     "time.pickStart": "Başlanğıc saatını seçin",
     "time.pickEnd": "İndi bitmə saatını seçin",
     "time.selected": "Seçilmiş vaxt: {range}",
+    "time.selectedPrice": "Seçilmiş vaxt: {range} · {hours} saat — {total} AZN",
     "time.booked": "Dolu",
     "time.bookedTitle": "Bu saat doludur",
 
@@ -127,6 +128,7 @@ const I18N = {
     "time.pickStart": "Pick a start time",
     "time.pickEnd": "Now pick an end time",
     "time.selected": "Selected time: {range}",
+    "time.selectedPrice": "Selected time: {range} · {hours} h — {total} AZN",
     "time.booked": "Booked",
     "time.bookedTitle": "This time is already booked",
 
@@ -210,6 +212,7 @@ const I18N = {
     "time.pickStart": "Выберите время начала",
     "time.pickEnd": "Теперь выберите время окончания",
     "time.selected": "Выбранное время: {range}",
+    "time.selectedPrice": "Выбранное время: {range} · {hours} ч — {total} AZN",
     "time.booked": "Занято",
     "time.bookedTitle": "Это время уже занято",
 

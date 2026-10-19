@@ -22,6 +22,9 @@ header('Cache-Control: no-store');
 const TIME_SLOTS = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
 const END_LIMIT = '21:00';
 const DATA_FILE = __DIR__ . '/../data/bookings.php';
+const SETTINGS_FILE = __DIR__ . '/../data/settings.php';
+const AUTH_FILE = __DIR__ . '/../data/admin-auth.php';
+const DEFAULT_SETTINGS = ['price_per_hour' => 25];
 const DATA_GUARD = "<?php http_response_code(404); exit; ?>\n";
 
 date_default_timezone_set('Asia/Baku');
@@ -118,4 +121,32 @@ function booked_times(array $bookings, string $date): array
     }
     sort($times);
     return array_values(array_unique($times));
+}
+
+/* ---------- Kiçik JSON fayllar (ayarlar, admin şifrəsi) ----------
+   data/ qovluğunda, bookings.php kimi PHP "exit" sətri ilə qorunur. */
+function read_json_file(string $path): array
+{
+    if (!is_file($path)) return [];
+    $json = (string)file_get_contents($path);
+    if (str_starts_with($json, DATA_GUARD)) {
+        $json = substr($json, strlen(DATA_GUARD));
+    }
+    $data = json_decode($json, true);
+    return is_array($data) ? $data : [];
+}
+
+function write_json_file(string $path, array $data): bool
+{
+    $dir = dirname($path);
+    if (!is_dir($dir) && !mkdir($dir, 0755, true)) return false;
+    return file_put_contents($path, DATA_GUARD . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) !== false;
+}
+
+/** Admin paneldən dəyişən ayarlar (saat başı qiymət, AZN) */
+function get_settings(): array
+{
+    $settings = array_merge(DEFAULT_SETTINGS, read_json_file(SETTINGS_FILE));
+    $settings['price_per_hour'] = max(0, (int)$settings['price_per_hour']);
+    return $settings;
 }

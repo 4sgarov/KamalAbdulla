@@ -211,6 +211,7 @@ function renderBookingsTable() {
       <td class="admin-cell-time">${escapeHtml(formatBookingRange(b))}</td>
       <td>${escapeHtml(b.name)}</td>
       <td><a class="admin-phone" href="tel:${escapeHtml(String(b.phone).replace(/[^\d+]/g, ""))}">${escapeHtml(b.phone)}</a></td>
+      <td class="admin-cell-time">${b.total !== undefined ? escapeHtml(b.total + " AZN") : "—"}</td>
       <td class="admin-cell-muted admin-cell-note">${escapeHtml(b.message || "—")}</td>
       <td><span class="booking-status ${status}">${BOOKING_STATUS_LABELS[status]}</span></td>
       <td>
@@ -231,6 +232,7 @@ async function loadBookings() {
     if (res.ok) {
       allBookings = Array.isArray(data.bookings) ? data.bookings : [];
       renderBookingsTable();
+      if (data.settings) renderSettings(data.settings);
     } else if (res.status !== 401) {
       showToast(data.error || "Rezervasiyaları yükləmək olmadı");
     }
@@ -268,6 +270,84 @@ bookingsTableBody.addEventListener("click", async e => {
     showToast("Serverə qoşulmaq olmadı");
   }
   loadBookings();
+});
+
+/* ============================================================
+   AYARLAR — saat başı qiymət və admin şifrəsi (serverdə saxlanılır)
+   ============================================================ */
+const priceForm = document.getElementById("priceForm");
+const pricePerHourInput = document.getElementById("pricePerHour");
+const priceExample = document.getElementById("priceExample");
+const passwordForm = document.getElementById("passwordForm");
+const passwordError = document.getElementById("passwordError");
+
+function renderPriceExample() {
+  const price = Number(pricePerHourInput.value) || 0;
+  priceExample.textContent = `Məsələn: 1 saat — ${price} AZN, 2 saat — ${price * 2} AZN, 3 saat — ${price * 3} AZN`;
+}
+
+function renderSettings(settings) {
+  /* İstifadəçi hazırda yazırsa, dəyəri üstündən yazmırıq */
+  if (document.activeElement !== pricePerHourInput) {
+    pricePerHourInput.value = settings.price_per_hour;
+  }
+  renderPriceExample();
+}
+
+pricePerHourInput.addEventListener("input", renderPriceExample);
+
+priceForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const submitBtn = priceForm.querySelector(".submit-btn");
+  submitBtn.disabled = true;
+  try {
+    const { res, data } = await adminFetch({
+      method: "POST",
+      body: { action: "set_price", price_per_hour: Number(pricePerHourInput.value) },
+    });
+    if (res.ok) showToast("Qiymət yadda saxlanıldı");
+    else if (res.status !== 401) showToast(data.error || "Xəta baş verdi");
+  } catch (err) {
+    showToast("Serverə qoşulmaq olmadı");
+  }
+  submitBtn.disabled = false;
+});
+
+passwordForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const next = document.getElementById("newPassword").value;
+  const repeat = document.getElementById("newPasswordRepeat").value;
+  passwordError.hidden = true;
+  if (next.length < 8) {
+    passwordError.textContent = "Yeni şifrə ən azı 8 simvol olmalıdır.";
+    passwordError.hidden = false;
+    return;
+  }
+  if (next !== repeat) {
+    passwordError.textContent = "Şifrələr eyni deyil.";
+    passwordError.hidden = false;
+    return;
+  }
+
+  const submitBtn = passwordForm.querySelector(".submit-btn");
+  submitBtn.disabled = true;
+  try {
+    const { res, data } = await adminFetch({ method: "POST", body: { action: "change_password", new_password: next } });
+    if (res.ok) {
+      /* Sonrakı sorğular yeni şifrə ilə getsin */
+      adminCredentials = { u: adminCredentials.u, p: next };
+      try { sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(adminCredentials)); } catch (err) {}
+      passwordForm.reset();
+      showToast("Şifrə dəyişdirildi");
+    } else if (res.status !== 401) {
+      passwordError.textContent = data.error || "Xəta baş verdi";
+      passwordError.hidden = false;
+    }
+  } catch (err) {
+    passwordError.textContent = "Serverə qoşulmaq olmadı";
+    passwordError.hidden = false;
+  }
+  submitBtn.disabled = false;
 });
 
 /* ============================================================

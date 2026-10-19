@@ -610,6 +610,8 @@ const BOOKINGS_API = "/api/bookings.php";
    hər tutulmuş saatın başlanğıcı, məs. 12:00–14:00 → ["12:00", "13:00"] */
 let bookedTimes = [];
 let slotsRequest = 0;
+/* Saat başı qiymət (AZN) — admin paneldən təyin olunur, serverdən gəlir */
+let pricePerHour = null;
 
 function showStep(el) {
   if (!el.hidden) return;
@@ -645,9 +647,15 @@ function timeRangeLabel() {
   return `${bookingTime.value}–${bookingEnd.value}`;
 }
 
+function selectedHours() {
+  return hourOf(bookingEnd.value) - hourOf(bookingTime.value);
+}
+
 function renderTimeStepTitle() {
   if (bookingTime.value && bookingEnd.value) {
-    timeStepTitle.textContent = t("time.selected", { range: timeRangeLabel() });
+    timeStepTitle.textContent = pricePerHour === null
+      ? t("time.selected", { range: timeRangeLabel() })
+      : t("time.selectedPrice", { range: timeRangeLabel(), hours: selectedHours(), total: selectedHours() * pricePerHour });
   } else if (bookingTime.value) {
     timeStepTitle.textContent = t("time.pickEnd");
   } else {
@@ -703,6 +711,7 @@ async function loadBookedTimes() {
     const data = await res.json();
     if (req !== slotsRequest) return;
     bookedTimes = Array.isArray(data.booked) ? data.booked : [];
+    if (typeof data.price_per_hour === "number") pricePerHour = data.price_per_hour;
   } catch {
     if (req !== slotsRequest) return;
     showBookingNote(t("note.slotsFail"));
