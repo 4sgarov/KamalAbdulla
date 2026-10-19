@@ -125,11 +125,11 @@
 
       <section class="view" data-view="booking">
         <h1 class="view-title" data-i18n="nav.book">Book Now</h1>
-        <p data-i18n="booking.intro">Seminar və ya konsultasiya üçün məlumatlarınızı yazın, uyğun gün və saatı seçin, ödəniş növünü qeyd edin.</p>
+        <p data-i18n="booking.intro">Ad soyad və telefon nömrənizi yazın, kalendardan tarix, sonra saat seçin. Rezervasiya admin təsdiqlədikdən sonra qüvvəyə minir.</p>
         <form class="booking-form" id="bookingForm" novalidate>
           <input type="text" id="bookingName" data-i18n-ph="booking.name" placeholder="Ad Soyad" required>
-          <input type="email" id="bookingEmail" data-i18n-ph="booking.email" placeholder="Email" required>
           <input type="tel" id="bookingPhone" data-i18n-ph="booking.phone" placeholder="Telefon nömrəsi" required>
+          <textarea rows="3" id="bookingMessage" data-i18n-ph="booking.message" placeholder="Qeyd"></textarea>
 
           <!-- Kalendar: seçilmiş tarix gizli input-da (YYYY-MM-DD) saxlanılır -->
           <div class="booking-calendar" id="bookingCalendar">
@@ -153,29 +153,7 @@
             <input type="hidden" id="bookingTime" name="time">
           </div>
 
-          <!-- Ödəniş növü: saat seçiləndən sonra görünür -->
-          <fieldset class="booking-step" id="bookingPayment" hidden>
-            <legend class="booking-step-title" data-i18n="pay.title">Ödəniş növü</legend>
-            <div class="payment-options">
-              <label class="payment-option">
-                <input type="radio" name="payment" value="card">
-                <span class="payment-option-title" data-i18n="pay.card">Kartla onlayn</span>
-                <span class="payment-option-desc" data-i18n="pay.cardDesc">Visa / Mastercard</span>
-              </label>
-              <label class="payment-option">
-                <input type="radio" name="payment" value="transfer">
-                <span class="payment-option-title" data-i18n="pay.transfer">Bank köçürməsi</span>
-                <span class="payment-option-desc" data-i18n="pay.transferDesc">Rekvizitlər emailə göndərilir</span>
-              </label>
-              <label class="payment-option">
-                <input type="radio" name="payment" value="cash">
-                <span class="payment-option-title" data-i18n="pay.cash">Nağd</span>
-                <span class="payment-option-desc" data-i18n="pay.cashDesc">Görüş zamanı yerində</span>
-              </label>
-            </div>
-          </fieldset>
 
-          <textarea rows="4" id="bookingMessage" data-i18n-ph="booking.message" placeholder="Mesajınız"></textarea>
           <p class="booking-note" id="bookingNote" hidden></p>
           <button type="submit" class="submit-btn" data-i18n="booking.submit">Rezerv et</button>
         </form>

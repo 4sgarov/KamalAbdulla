@@ -17,7 +17,6 @@
   <form class="admin-login-box" id="adminLoginForm">
     <img class="admin-login-logo" src="../assets/logo.svg" alt="Kamal Abdulla">
     <h1 class="admin-login-title">Admin Panel</h1>
-    <p class="admin-login-hint">Demo giriş: <strong>admin</strong> / <strong>admin123</strong></p>
     <input type="text" id="adminUsername" placeholder="İstifadəçi adı" autocomplete="username" required>
     <input type="password" id="adminPassword" placeholder="Şifrə" autocomplete="current-password" required>
     <p class="admin-login-error" id="adminLoginError" hidden>İstifadəçi adı və ya şifrə yanlışdır.</p>
@@ -35,6 +34,10 @@
       <button class="admin-nav-link active" data-section="dashboard">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Dashboard
+      </button>
+      <button class="admin-nav-link" data-section="bookings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/></svg>
+        Rezervasiyalar <span class="admin-nav-badge" id="pendingBadge" hidden>0</span>
       </button>
       <button class="admin-nav-link" data-section="about">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 19a6 6 0 0 1 11 0"/></svg>
@@ -92,6 +95,30 @@
         </div>
       </div>
       <p class="admin-note">Bu panel bu brauzerin yaddaşında (localStorage) saxlanılan demo məlumatlarla işləyir. Backend qoşulduqdan sonra eyni interfeys real API-yə bağlana bilər.</p>
+    </section>
+
+    <!-- REZERVASİYALAR -->
+    <section class="admin-section" data-section="bookings">
+      <div class="admin-section-head">
+        <h1 class="admin-title">Rezervasiyalar</h1>
+        <button class="submit-btn admin-add-btn" id="refreshBookingsBtn">Yenilə</button>
+      </div>
+      <div class="booking-filters" id="bookingFilters">
+        <button class="filter-btn active" data-status="pending">Gözləyən</button>
+        <button class="filter-btn" data-status="approved">Təsdiqlənmiş</button>
+        <button class="filter-btn" data-status="rejected">İmtina</button>
+        <button class="filter-btn" data-status="all">Hamısı</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Tarix</th><th>Saat</th><th>Ad Soyad</th><th>Telefon</th><th>Qeyd</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="bookingsTableBody"></tbody>
+        </table>
+        <p class="admin-empty" id="bookingsEmpty" hidden>Bu bölmədə rezervasiya yoxdur.</p>
+      </div>
+      <p class="admin-note">Təsdiqlənən rezervasiyanın günü və saatı saytda "Dolu" görünür və həmin saatı başqası tuta bilmir. İmtina edilən saat yenidən boşalır.</p>
     </section>
 
     <!-- ABOUT ME -->

@@ -589,20 +589,19 @@ function clearSelectedDate() {
   bookingTimes.hidden = true;
 }
 
-/* ---------- BOOKING: SAAT VƏ ÖDƏNİŞ ----------
-   Tarix seçiləndən sonra saatlar, saat seçiləndən sonra ödəniş növü görünür.
-   Bu gün üçün artıq keçmiş saatlar seçilə bilmir. */
+/* ---------- BOOKING: SAAT ----------
+   Tarix seçiləndən sonra saatlar görünür. Bu gün üçün artıq keçmiş saatlar
+   və admin tərəfindən təsdiqlənmiş (dolu) saatlar seçilə bilmir. */
 const bookingTimes = document.getElementById("bookingTimes");
 const timeSlots = document.getElementById("timeSlots");
 const bookingTime = document.getElementById("bookingTime");
-const bookingPayment = document.getElementById("bookingPayment");
 
 /* api/bookings.php-dəki TIME_SLOTS ilə eyni olmalıdır */
 const TIME_SLOTS = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
   "17:00", "18:00", "19:00", "20:00"];
 const BOOKINGS_API = "/api/bookings.php";
 
-/* Seçilmiş gün üçün serverdən gələn dolu saatlar */
+/* Seçilmiş gün üçün serverdən gələn dolu (təsdiqlənmiş) saatlar */
 let bookedTimes = [];
 let slotsRequest = 0;
 
@@ -663,9 +662,6 @@ async function loadBookedTimes() {
 function clearSelectedTime() {
   bookingTime.value = "";
   bookingTimes.classList.remove("error");
-  bookingPayment.hidden = true;
-  bookingPayment.classList.remove("error");
-  bookingForm.querySelectorAll('input[name="payment"]').forEach(r => { r.checked = false; });
 }
 
 timeSlots.addEventListener("click", e => {
@@ -675,12 +671,6 @@ timeSlots.addEventListener("click", e => {
   bookingTimes.classList.remove("error");
   hideBookingNote();
   renderTimeSlots();
-  showStep(bookingPayment);
-});
-
-bookingPayment.addEventListener("change", () => {
-  bookingPayment.classList.remove("error");
-  hideBookingNote();
 });
 
 function shiftCalendarMonth(delta) {
@@ -713,12 +703,10 @@ bookingForm.addEventListener("submit", async e => {
   e.preventDefault();
 
   const name = document.getElementById("bookingName").value.trim();
-  const email = document.getElementById("bookingEmail").value.trim();
   const phone = document.getElementById("bookingPhone").value.trim();
   const message = document.getElementById("bookingMessage").value.trim();
 
   if (!name) { showBookingNote(t("note.name")); return; }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showBookingNote(t("note.email")); return; }
   if (!phone) { showBookingNote(t("note.phone")); return; }
   if (!bookingDate.value) {
     bookingCalendar.classList.add("error");
@@ -730,14 +718,7 @@ bookingForm.addEventListener("submit", async e => {
     showBookingNote(t("note.time"));
     return;
   }
-  const payment = bookingForm.querySelector('input[name="payment"]:checked');
-  if (!payment) {
-    bookingPayment.classList.add("error");
-    showBookingNote(t("note.payment"));
-    return;
-  }
-
-  /* Saat serverdə yalnız bir nəfərə verilir — eyni anda başqası tutubsa 409 gəlir */
+  /* Saat admin təsdiqləyəndə dolur — artıq təsdiqlənmiş saata sorğu 409 alır */
   const submitBtn = bookingForm.querySelector(".submit-btn");
   submitBtn.disabled = true;
   hideBookingNote();
@@ -747,10 +728,9 @@ bookingForm.addEventListener("submit", async e => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name, email, phone, message,
+        name, phone, message,
         date: bookingDate.value,
         time: bookingTime.value,
-        payment: payment.value,
       }),
     });
     data = await res.json();
@@ -778,7 +758,6 @@ bookingForm.addEventListener("submit", async e => {
   showBookingNote(t("note.success", {
     date: formatDate(selectedDate),
     time: bookingTime.value,
-    payment: t("pay." + payment.value),
   }), true);
   bookingForm.reset();
   clearSelectedDate();

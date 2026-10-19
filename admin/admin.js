@@ -53,14 +53,39 @@ async function handleFileChange(fileInput, statusEl, onLoaded) {
   }
 }
 
-/* ---------- LOGIN (DEMO) ----------
-   Bu, real autentifikasiya deyil — sadəcə interfeys demo-sudur. İstifadəçi
-   adı/şifrə brauzer kodunda açıq görünür, ona görə real layihədə admin
-   girişi mütləq serverdə (backend) yoxlanılmalıdır, heç vaxt frontend-də
-   deyil. */
-const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "admin123";
-const ADMIN_SESSION_KEY = "admin_session";
+/* ---------- LOGIN ----------
+   Giriş serverdə yoxlanılır (api/admin-bookings.php, admin-config.php-dəki
+   hash ilə). Uğurlu girişdən sonra məlumatlar yalnız bu tab-ın
+   sessionStorage-ında saxlanılır və hər API sorğusuna başlıq kimi əlavə
+   olunur — tab bağlananda silinir. */
+const ADMIN_API = "../api/admin-bookings.php";
+const ADMIN_SESSION_KEY = "admin_credentials";
+
+let adminCredentials = null;
+try { adminCredentials = JSON.parse(sessionStorage.getItem(ADMIN_SESSION_KEY)); } catch (e) {}
+
+/* Admin API sorğusu. 401 gəlsə sessiya bitir və giriş ekranı açılır. */
+async function adminFetch(options) {
+  const opts = options || {};
+  const res = await fetch(ADMIN_API, {
+    method: opts.method || "GET",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Admin-User": adminCredentials ? adminCredentials.u : "",
+      "X-Admin-Password": adminCredentials ? adminCredentials.p : "",
+    },
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (res.status === 401) {
+    adminCredentials = null;
+    try { sessionStorage.removeItem(ADMIN_SESSION_KEY); } catch (e) {}
+    showAdminLogin();
+  }
+  return { res, data };
+}
 
 const adminLogin = document.getElementById("adminLogin");
 const adminApp = document.getElementById("adminApp");
@@ -79,26 +104,43 @@ function showAdminLogin() {
   adminLogin.hidden = false;
 }
 
-adminLoginForm.addEventListener("submit", e => {
+adminLoginForm.addEventListener("submit", async e => {
   e.preventDefault();
-  const u = document.getElementById("adminUsername").value.trim();
-  const p = document.getElementById("adminPassword").value;
-
-  if (u === ADMIN_USERNAME && p === ADMIN_PASSWORD) {
-    adminLoginError.hidden = true;
-    setFlag(ADMIN_SESSION_KEY, "1");
-    showAdminApp();
-  } else {
+  const submitBtn = adminLoginForm.querySelector(".submit-btn");
+  adminCredentials = {
+    u: document.getElementById("adminUsername").value.trim(),
+    p: document.getElementById("adminPassword").value,
+  };
+  submitBtn.disabled = true;
+  adminLoginError.hidden = true;
+  try {
+    const { res } = await adminFetch({ method: "POST", body: { action: "login" } });
+    if (res.ok) {
+      try { sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(adminCredentials)); } catch (err) {}
+      adminLoginForm.reset();
+      showAdminApp();
+    } else {
+      adminCredentials = null;
+      adminLoginError.textContent = res.status === 401
+        ? "İstifadəçi adı və ya şifrə yanlışdır."
+        : "Server cavab vermir. Bir az sonra yenidən cəhd edin.";
+      adminLoginError.hidden = false;
+    }
+  } catch (err) {
+    adminCredentials = null;
+    adminLoginError.textContent = "Serverə qoşulmaq olmadı. İnternet bağlantınızı yoxlayın.";
     adminLoginError.hidden = false;
   }
+  submitBtn.disabled = false;
 });
 
 adminLogoutBtn.addEventListener("click", () => {
-  setFlag(ADMIN_SESSION_KEY, "0");
+  adminCredentials = null;
+  try { sessionStorage.removeItem(ADMIN_SESSION_KEY); } catch (e) {}
   showAdminLogin();
 });
 
-if (getFlag(ADMIN_SESSION_KEY) === "1") {
+if (adminCredentials) {
   showAdminApp();
 }
 
@@ -120,6 +162,110 @@ function renderDashboard() {
   document.getElementById("statBlog").textContent = getBlogPosts().length;
   document.getElementById("statPortfolio").textContent = getPortfolio().length;
 }
+
+/* ============================================================
+   REZERVASİYALAR (serverdən — api/admin-bookings.php)
+   ============================================================ */
+const bookingsTableBody = document.getElementById("bookingsTableBody");
+const bookingsEmpty = document.getElementById("bookingsEmpty");
+const bookingFilters = document.getElementById("bookingFilters");
+const pendingBadge = document.getElementById("pendingBadge");
+const refreshBookingsBtn = document.getElementById("refreshBookingsBtn");
+
+const BOOKING_STATUS_LABELS = {
+  pending: "Gözləyir",
+  approved: "Təsdiqlənib",
+  rejected: "İmtina",
+};
+
+let allBookings = [];
+let bookingFilter = "pending";
+
+/* Köhnə rezervasiyalarda status "booked" ola bilər — onlar da gözləyəndir */
+function bookingStatus(b) {
+  return BOOKING_STATUS_LABELS[b.status] ? b.status : "pending";
+}
+
+function formatBookingDate(iso) {
+  const [y, m, d] = String(iso).split("-");
+  return d && m && y ? `${d}.${m}.${y}` : iso;
+}
+
+function renderBookingsTable() {
+  const pendingCount = allBookings.filter(b => bookingStatus(b) === "pending").length;
+  pendingBadge.textContent = pendingCount;
+  pendingBadge.hidden = pendingCount === 0;
+
+  const list = bookingFilter === "all"
+    ? allBookings
+    : allBookings.filter(b => bookingStatus(b) === bookingFilter);
+  bookingsEmpty.hidden = list.length > 0;
+  bookingsTableBody.innerHTML = list.map(b => {
+    const status = bookingStatus(b);
+    return `
+    <tr>
+      <td>${escapeHtml(formatBookingDate(b.date))}</td>
+      <td>${escapeHtml(b.time)}</td>
+      <td>${escapeHtml(b.name)}</td>
+      <td><a class="admin-phone" href="tel:${escapeHtml(String(b.phone).replace(/[^\d+]/g, ""))}">${escapeHtml(b.phone)}</a></td>
+      <td class="admin-cell-muted admin-cell-note">${escapeHtml(b.message || "—")}</td>
+      <td><span class="booking-status ${status}">${BOOKING_STATUS_LABELS[status]}</span></td>
+      <td>
+        <div class="admin-row-actions">
+          ${status !== "approved" ? `<button class="admin-text-btn approve" data-action="approve" data-id="${escapeHtml(b.id)}">Təsdiqlə</button>` : ""}
+          ${status !== "rejected" ? `<button class="admin-text-btn" data-action="reject" data-id="${escapeHtml(b.id)}">İmtina</button>` : ""}
+          <button class="admin-icon-btn danger" data-action="delete" data-id="${escapeHtml(b.id)}" aria-label="Sil">${ICON_DELETE}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+async function loadBookings() {
+  refreshBookingsBtn.disabled = true;
+  try {
+    const { res, data } = await adminFetch();
+    if (res.ok) {
+      allBookings = Array.isArray(data.bookings) ? data.bookings : [];
+      renderBookingsTable();
+    } else if (res.status !== 401) {
+      showToast(data.error || "Rezervasiyaları yükləmək olmadı");
+    }
+  } catch (e) {
+    showToast("Serverə qoşulmaq olmadı");
+  }
+  refreshBookingsBtn.disabled = false;
+}
+
+bookingFilters.addEventListener("click", e => {
+  const btn = e.target.closest(".filter-btn");
+  if (!btn) return;
+  bookingFilter = btn.dataset.status;
+  bookingFilters.querySelectorAll(".filter-btn").forEach(b => b.classList.toggle("active", b === btn));
+  renderBookingsTable();
+});
+
+refreshBookingsBtn.addEventListener("click", loadBookings);
+
+bookingsTableBody.addEventListener("click", async e => {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const { action, id } = btn.dataset;
+  if (action === "delete" && !confirm("Bu rezervasiya silinsin?")) return;
+
+  btn.disabled = true;
+  try {
+    const { res, data } = await adminFetch({ method: "POST", body: { action, id } });
+    if (res.ok) {
+      showToast({ approve: "Təsdiqləndi — saat saytda dolu görünür", reject: "İmtina edildi", delete: "Silindi" }[action]);
+    } else if (res.status !== 401) {
+      showToast(data.error || "Xəta baş verdi");
+    }
+  } catch (err) {
+    showToast("Serverə qoşulmaq olmadı");
+  }
+  loadBookings();
+});
 
 /* ============================================================
    ABOUT ME
@@ -707,6 +853,7 @@ document.addEventListener("keydown", e => {
 
 /* ---------- INIT ---------- */
 function renderAll() {
+  loadBookings();
   renderDashboard();
   renderAboutForm();
   renderUsersTable();
