@@ -4,9 +4,9 @@
  *
  * GET  ?date=YYYY-MM-DD  → həmin gün təsdiqlənmiş (dolu) saatlar: {"booked": ["12:00", ...]}
  *                          (şəxsi məlumat qaytarılmır)
- * POST (JSON)            → yeni rezervasiya sorğusu, status "pending". Saat yalnız
- *                          admin təsdiqlədikdən sonra dolu sayılır; təsdiqlənmiş
- *                          saata sorğu gəlsə 409 qaytarır.
+ * POST (JSON)            → yeni rezervasiya sorğusu (time — başlanğıc, end — bitmə),
+ *                          status "pending". Saatlar yalnız admin təsdiqlədikdən sonra
+ *                          dolu sayılır; aralıq təsdiqlənmiş saata düşərsə 409 qaytarır.
  */
 declare(strict_types=1);
 
@@ -38,12 +38,14 @@ $name = trim((string)($input['name'] ?? ''));
 $phone = trim((string)($input['phone'] ?? ''));
 $date = (string)($input['date'] ?? '');
 $time = (string)($input['time'] ?? '');
+$end = (string)($input['end'] ?? '');
 $message = trim((string)($input['message'] ?? ''));
 
 if ($name === '' || mb_strlen($name) > 120) respond(422, ['error' => 'Zəhmət olmasa ad və soyadınızı yazın.']);
 if ($phone === '' || mb_strlen($phone) > 40) respond(422, ['error' => 'Telefon nömrənizi yazın.']);
 if (!valid_date($date)) respond(422, ['error' => 'Kalendardan tarix seçin.']);
-if (!in_array($time, TIME_SLOTS, true)) respond(422, ['error' => 'Saat seçin.']);
+if (!in_array($time, TIME_SLOTS, true)) respond(422, ['error' => 'Başlanğıc saatını seçin.']);
+if (!valid_end($time, $end)) respond(422, ['error' => 'Bitmə saatını seçin.']);
 if (mb_strlen($message) > 2000) $message = mb_substr($message, 0, 2000);
 
 $slotStart = DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
@@ -54,9 +56,9 @@ if ($slotStart <= new DateTime()) {
 $fh = open_store(true);
 $bookings = read_store($fh);
 
-if (in_array($time, booked_times($bookings, $date), true)) {
+if (array_intersect(range_hours($time, $end), booked_times($bookings, $date))) {
     close_store($fh);
-    respond(409, ['error' => 'Bu saat artıq doludur. Başqa saat seçin.', 'booked' => booked_times($bookings, $date)]);
+    respond(409, ['error' => 'Seçdiyiniz aralıqda dolu saat var. Başqa vaxt seçin.', 'booked' => booked_times($bookings, $date)]);
 }
 
 $booking = [
@@ -65,6 +67,7 @@ $booking = [
     'phone' => $phone,
     'date' => $date,
     'time' => $time,
+    'end' => $end,
     'message' => $message,
     'status' => 'pending',
     'created_at' => date('c'),

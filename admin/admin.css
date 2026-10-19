@@ -721,3 +721,5 @@
 .admin-phone:hover { color: var(--accent); }
 
 .admin-cell-note { max-width: 260px; white-space: pre-wrap; word-break: break-word; }
+
+.admin-cell-time { white-space: nowrap; }

@@ -1181,6 +1181,7 @@ html, body {
 .time-slot:hover { border-color: var(--accent); }
 .time-slot.selected,
 .time-slot.selected:hover { background: var(--accent); border-color: var(--accent); color: #101010; }
+.time-slot.in-range { background: #e8ff5b24; border-color: #e8ff5b66; }
 .time-slot:disabled { opacity: .25; cursor: default; border-color: var(--panel); }
 /* Başqası tərəfindən tutulmuş saat — keçmiş saatdan fərqlənsin deyə qırmızımtıl */
 .time-slot.booked {

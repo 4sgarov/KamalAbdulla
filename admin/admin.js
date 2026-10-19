@@ -140,9 +140,6 @@ adminLogoutBtn.addEventListener("click", () => {
   showAdminLogin();
 });
 
-if (adminCredentials) {
-  showAdminApp();
-}
 
 /* ---------- BÖLMƏ NAVİQASİYASI ---------- */
 const adminNavButtons = document.querySelectorAll(".admin-nav-link[data-section]");
@@ -186,6 +183,12 @@ function bookingStatus(b) {
   return BOOKING_STATUS_LABELS[b.status] ? b.status : "pending";
 }
 
+/* "12:00–14:00"; köhnə rezervasiyalarda bitmə yoxdursa — bir saat */
+function formatBookingRange(b) {
+  const end = b.end || String(Number(String(b.time).slice(0, 2)) + 1).padStart(2, "0") + ":00";
+  return `${b.time}–${end}`;
+}
+
 function formatBookingDate(iso) {
   const [y, m, d] = String(iso).split("-");
   return d && m && y ? `${d}.${m}.${y}` : iso;
@@ -205,7 +208,7 @@ function renderBookingsTable() {
     return `
     <tr>
       <td>${escapeHtml(formatBookingDate(b.date))}</td>
-      <td>${escapeHtml(b.time)}</td>
+      <td class="admin-cell-time">${escapeHtml(formatBookingRange(b))}</td>
       <td>${escapeHtml(b.name)}</td>
       <td><a class="admin-phone" href="tel:${escapeHtml(String(b.phone).replace(/[^\d+]/g, ""))}">${escapeHtml(b.phone)}</a></td>
       <td class="admin-cell-muted admin-cell-note">${escapeHtml(b.message || "—")}</td>
@@ -257,7 +260,7 @@ bookingsTableBody.addEventListener("click", async e => {
   try {
     const { res, data } = await adminFetch({ method: "POST", body: { action, id } });
     if (res.ok) {
-      showToast({ approve: "Təsdiqləndi — saat saytda dolu görünür", reject: "İmtina edildi", delete: "Silindi" }[action]);
+      showToast({ approve: "Təsdiqləndi — saatlar saytda dolu görünür", reject: "İmtina edildi", delete: "Silindi" }[action]);
     } else if (res.status !== 401) {
       showToast(data.error || "Xəta baş verdi");
     }
@@ -861,4 +864,10 @@ function renderAll() {
   renderCategoriesList();
   renderBlogTable();
   renderPortfolioTable();
+}
+
+/* Sessiya varsa paneli dərhal aç — faylın sonunda olmalıdır ki, yuxarıdakı
+   bütün dəyişənlər artıq təyin olunsun */
+if (adminCredentials) {
+  showAdminApp();
 }

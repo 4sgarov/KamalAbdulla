@@ -9,13 +9,18 @@
  *
  * Rezervasiya statusları: pending (gözləyir), approved (təsdiqlənib),
  * rejected (imtina). Saatı yalnız "approved" rezervasiya tutur.
+ *
+ * Rezervasiya saat aralığıdır: "time" — başlanğıc, "end" — bitmə (məs. 12:00–14:00).
+ * Köhnə rezervasiyalarda "end" yoxdursa, bir saat sayılır.
  */
 declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
+/* Başlanğıc saatları; bitmə saatı başlanğıcdan sonrakı istənilən tam saat ola bilər (ən gec END_LIMIT) */
 const TIME_SLOTS = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+const END_LIMIT = '21:00';
 const DATA_FILE = __DIR__ . '/../data/bookings.php';
 const DATA_GUARD = "<?php http_response_code(404); exit; ?>\n";
 
@@ -73,13 +78,42 @@ function close_store($fh): void
     fclose($fh);
 }
 
-/** Həmin gün admin tərəfindən təsdiqlənmiş (dolu) saatlar */
+function hour_of(string $time): int
+{
+    return (int)substr($time, 0, 2);
+}
+
+function booking_end(array $b): string
+{
+    if (!empty($b['end'])) return (string)$b['end'];
+    return sprintf('%02d:00', hour_of((string)($b['time'] ?? '00:00')) + 1);
+}
+
+/** Aralığın tutduğu saatlar: 12:00–14:00 → ['12:00', '13:00'] */
+function range_hours(string $start, string $end): array
+{
+    $hours = [];
+    for ($h = hour_of($start); $h < hour_of($end); $h++) {
+        $hours[] = sprintf('%02d:00', $h);
+    }
+    return $hours;
+}
+
+/** Bitmə saatı düzgündürmü: tam saat, başlanğıcdan sonra, END_LIMIT-dən gec deyil */
+function valid_end(string $start, string $end): bool
+{
+    return preg_match('/^\d{2}:00$/', $end) === 1
+        && hour_of($end) > hour_of($start)
+        && hour_of($end) <= hour_of(END_LIMIT);
+}
+
+/** Həmin gün admin tərəfindən təsdiqlənmiş (dolu) saatlar — hər tutulmuş saatın başlanğıcı */
 function booked_times(array $bookings, string $date): array
 {
     $times = [];
     foreach ($bookings as $b) {
         if (($b['date'] ?? '') === $date && ($b['status'] ?? '') === 'approved') {
-            $times[] = $b['time'];
+            $times = array_merge($times, range_hours((string)$b['time'], booking_end($b)));
         }
     }
     sort($times);

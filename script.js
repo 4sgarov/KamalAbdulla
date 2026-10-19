@@ -589,19 +589,25 @@ function clearSelectedDate() {
   bookingTimes.hidden = true;
 }
 
-/* ---------- BOOKING: SAAT ----------
-   Tarix seçiləndən sonra saatlar görünür. Bu gün üçün artıq keçmiş saatlar
-   və admin tərəfindən təsdiqlənmiş (dolu) saatlar seçilə bilmir. */
+/* ---------- BOOKING: SAAT ARALIĞI ----------
+   Tarix seçiləndən sonra saatlar görünür. Əvvəl başlanğıc, sonra bitmə saatı
+   seçilir (məs. 12:00 → 14:00). Bu gün üçün keçmiş saatlar və admin
+   tərəfindən təsdiqlənmiş (dolu) saatlar aralığa düşə bilməz. */
 const bookingTimes = document.getElementById("bookingTimes");
 const timeSlots = document.getElementById("timeSlots");
 const bookingTime = document.getElementById("bookingTime");
+const bookingEnd = document.getElementById("bookingEnd");
+const timeStepTitle = document.getElementById("timeStepTitle");
 
-/* api/bookings.php-dəki TIME_SLOTS ilə eyni olmalıdır */
-const TIME_SLOTS = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
-  "17:00", "18:00", "19:00", "20:00"];
+/* Saat sərhədləri. Başlanğıc 10:00–20:00, bitmə 11:00–21:00 ola bilər —
+   api/lib.php-dəki TIME_SLOTS və END_LIMIT ilə eyni olmalıdır */
+const TIME_BOUNDS = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
+  "17:00", "18:00", "19:00", "20:00", "21:00"];
+const LAST_BOUND = TIME_BOUNDS[TIME_BOUNDS.length - 1];
 const BOOKINGS_API = "/api/bookings.php";
 
-/* Seçilmiş gün üçün serverdən gələn dolu (təsdiqlənmiş) saatlar */
+/* Seçilmiş gün üçün serverdən gələn dolu (təsdiqlənmiş) saatlar —
+   hər tutulmuş saatın başlanğıcı, məs. 12:00–14:00 → ["12:00", "13:00"] */
 let bookedTimes = [];
 let slotsRequest = 0;
 
@@ -611,31 +617,78 @@ function showStep(el) {
   animate(el, { opacity: [0, 1], y: [8, 0] }, { duration: 0.25 });
 }
 
+function hourOf(time) {
+  return Number(time.slice(0, 2));
+}
+
+function isPastStart(time) {
+  if (!selectedDate || selectedDate.getTime() !== today.getTime()) return false;
+  return hourOf(time) <= new Date().getHours();
+}
+
+/* Bu saatdan başlamaq olarmı: son sərhəd deyil, keçmiş deyil, həmin saat boşdur */
+function canStartAt(time) {
+  return time !== LAST_BOUND && !isPastStart(time) && !bookedTimes.includes(time);
+}
+
+/* Seçilmiş başlanğıcdan bu saata qədər aralıq boşdurmu */
+function canEndAt(time) {
+  const start = bookingTime.value;
+  if (!start || hourOf(time) <= hourOf(start)) return false;
+  for (let h = hourOf(start); h < hourOf(time); h++) {
+    if (bookedTimes.includes(String(h).padStart(2, "0") + ":00")) return false;
+  }
+  return true;
+}
+
+function timeRangeLabel() {
+  return `${bookingTime.value}–${bookingEnd.value}`;
+}
+
+function renderTimeStepTitle() {
+  if (bookingTime.value && bookingEnd.value) {
+    timeStepTitle.textContent = t("time.selected", { range: timeRangeLabel() });
+  } else if (bookingTime.value) {
+    timeStepTitle.textContent = t("time.pickEnd");
+  } else {
+    timeStepTitle.textContent = t("time.pickStart");
+  }
+}
+
 function renderTimeSlots() {
-  const now = new Date();
-  const isToday = selectedDate && selectedDate.getTime() === today.getTime();
+  const start = bookingTime.value;
+  const end = bookingEnd.value;
+  const pickingEnd = start && !end;
 
   timeSlots.innerHTML = "";
-  TIME_SLOTS.forEach(slot => {
+  TIME_BOUNDS.forEach(bound => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "time-slot";
-    btn.textContent = slot;
-    btn.dataset.time = slot;
+    btn.textContent = bound;
+    btn.dataset.time = bound;
 
-    const [h, m] = slot.split(":").map(Number);
-    if (isToday && (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes()))) {
-      btn.disabled = true;
-    }
-    if (bookedTimes.includes(slot)) {
-      btn.disabled = true;
+    /* Seçilmiş bitmə saatı da aktiv qalır ki, solğun/"Dolu" görünməsin */
+    const selectable = pickingEnd
+      ? bound === start || canEndAt(bound) || canStartAt(bound)
+      : bound === end || canStartAt(bound);
+    if (!selectable) btn.disabled = true;
+
+    /* Dolu saat — yalnız seçilə bilmirsə "Dolu" kimi göstərilir (dolu saatın
+       başlanğıcı bitmə saatı kimi seçilə bilər: 12:00–14:00, 14:00 dolu olsa da) */
+    if (!selectable && bookedTimes.includes(bound)) {
       btn.classList.add("booked");
       btn.title = t("time.bookedTitle");
-      btn.innerHTML = `${slot}<small>${escapeHtml(t("time.booked"))}</small>`;
+      btn.innerHTML = `${bound}<small>${escapeHtml(t("time.booked"))}</small>`;
     }
-    if (bookingTime.value === slot) btn.classList.add("selected");
+
+    if (bound === start || bound === end) btn.classList.add("selected");
+    if (start && end && hourOf(bound) > hourOf(start) && hourOf(bound) < hourOf(end)) {
+      btn.classList.add("in-range");
+    }
     timeSlots.appendChild(btn);
   });
+  renderTimeStepTitle();
 }
 
 /* Seçilmiş gün üçün dolu saatları serverdən alır. Tez-tez tarix dəyişəndə
@@ -655,19 +708,38 @@ async function loadBookedTimes() {
     showBookingNote(t("note.slotsFail"));
   }
   timeSlots.classList.remove("loading");
-  if (bookedTimes.includes(bookingTime.value)) clearSelectedTime();
+  if (bookingTime.value && (!canStartAt(bookingTime.value) || (bookingEnd.value && !canEndAt(bookingEnd.value)))) {
+    clearSelectedTime();
+  }
   renderTimeSlots();
 }
 
 function clearSelectedTime() {
   bookingTime.value = "";
+  bookingEnd.value = "";
   bookingTimes.classList.remove("error");
 }
 
+/* 1-ci klik — başlanğıc, 2-ci klik — bitmə. Aralıq seçiləndən sonra yeni klik
+   yeni başlanğıc seçir; başlanğıca yenidən klikləmək seçimi ləğv edir. */
 timeSlots.addEventListener("click", e => {
   const btn = e.target.closest(".time-slot");
   if (!btn || btn.disabled) return;
-  bookingTime.value = btn.dataset.time;
+  const time = btn.dataset.time;
+
+  if (bookingTime.value && !bookingEnd.value) {
+    if (time === bookingTime.value) {
+      bookingTime.value = "";
+    } else if (canEndAt(time)) {
+      bookingEnd.value = time;
+    } else if (canStartAt(time)) {
+      bookingTime.value = time;
+    }
+  } else if (canStartAt(time)) {
+    bookingTime.value = time;
+    bookingEnd.value = "";
+  }
+
   bookingTimes.classList.remove("error");
   hideBookingNote();
   renderTimeSlots();
@@ -713,9 +785,9 @@ bookingForm.addEventListener("submit", async e => {
     showBookingNote(t("note.date"));
     return;
   }
-  if (!bookingTime.value) {
+  if (!bookingTime.value || !bookingEnd.value) {
     bookingTimes.classList.add("error");
-    showBookingNote(t("note.time"));
+    showBookingNote(t(bookingTime.value ? "note.end" : "note.time"));
     return;
   }
   /* Saat admin təsdiqləyəndə dolur — artıq təsdiqlənmiş saata sorğu 409 alır */
@@ -731,6 +803,7 @@ bookingForm.addEventListener("submit", async e => {
         name, phone, message,
         date: bookingDate.value,
         time: bookingTime.value,
+        end: bookingEnd.value,
       }),
     });
     data = await res.json();
@@ -757,7 +830,7 @@ bookingForm.addEventListener("submit", async e => {
 
   showBookingNote(t("note.success", {
     date: formatDate(selectedDate),
-    time: bookingTime.value,
+    time: timeRangeLabel(),
   }), true);
   bookingForm.reset();
   clearSelectedDate();
@@ -787,6 +860,7 @@ function rerenderForLang() {
   renderWeekdays();
   renderCalendar();
   renderCalendarSelected();
+  renderTimeStepTitle();
   if (!bookingTimes.hidden) renderTimeSlots();
   if (!authPurchases.hidden) renderPurchasedList();
 }

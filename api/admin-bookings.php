@@ -7,8 +7,8 @@
  * POST (JSON)      → {"action": "login"}                      — yalnız girişi yoxlayır
  *                    {"action": "approve"|"reject"|"pending"|"delete", "id": "..."}
  *
- * Təsdiqlənən rezervasiya həmin gün və saatı tutur — saytda "Dolu" görünür.
- * Eyni saat üçün ikinci rezervasiyanı təsdiqləmək olmaz (409).
+ * Təsdiqlənən rezervasiya həmin gün saat aralığını tutur — saytda "Dolu" görünür.
+ * Aralığı başqa təsdiqlənmiş rezervasiya ilə üst-üstə düşəni təsdiqləmək olmaz (409).
  */
 declare(strict_types=1);
 
@@ -73,11 +73,12 @@ if ($action === 'delete') {
 } else {
     $target = $bookings[$index];
     if ($action === 'approve') {
+        $targetHours = range_hours((string)$target['time'], booking_end($target));
         foreach ($bookings as $i => $b) {
-            if ($i !== $index && ($b['status'] ?? '') === 'approved'
-                && ($b['date'] ?? '') === $target['date'] && ($b['time'] ?? '') === $target['time']) {
+            if ($i !== $index && ($b['status'] ?? '') === 'approved' && ($b['date'] ?? '') === $target['date']
+                && array_intersect($targetHours, range_hours((string)$b['time'], booking_end($b)))) {
                 close_store($fh);
-                respond(409, ['error' => 'Bu gün və saat üçün artıq başqa rezervasiya təsdiqlənib.']);
+                respond(409, ['error' => 'Bu aralıq başqa təsdiqlənmiş rezervasiya ilə üst-üstə düşür.']);
             }
         }
     }
