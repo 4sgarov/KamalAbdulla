@@ -175,6 +175,12 @@ const BOOKING_STATUS_LABELS = {
   rejected: "İmtina",
 };
 
+const PAYMENT_STATUS_LABELS = {
+  paid: "Ödənilib",
+  unpaid: "Ödənilməyib",
+  failed: "Ödəniş alınmadı",
+};
+
 let allBookings = [];
 let bookingFilter = "pending";
 
@@ -211,7 +217,11 @@ function renderBookingsTable() {
       <td class="admin-cell-time">${escapeHtml(formatBookingRange(b))}</td>
       <td>${escapeHtml(b.name)}</td>
       <td><a class="admin-phone" href="tel:${escapeHtml(String(b.phone).replace(/[^\d+]/g, ""))}">${escapeHtml(b.phone)}</a></td>
-      <td class="admin-cell-time">${b.total !== undefined ? escapeHtml(b.total + " AZN") : "—"}</td>
+      <td class="admin-cell-time">
+        ${b.total !== undefined ? escapeHtml(b.total + " AZN") : "—"}
+        ${b.payment ? `<span class="payment-status ${escapeHtml(b.payment)}">${PAYMENT_STATUS_LABELS[b.payment] || ""}</span>` : ""}
+        ${b.payriff_order_id && b.payment !== "paid" ? `<button class="admin-link-btn" data-action="check_payment" data-id="${escapeHtml(b.id)}">Yoxla</button>` : ""}
+      </td>
       <td class="admin-cell-muted admin-cell-note">${escapeHtml(b.message || "—")}</td>
       <td><span class="booking-status ${status}">${BOOKING_STATUS_LABELS[status]}</span></td>
       <td>
@@ -262,7 +272,12 @@ bookingsTableBody.addEventListener("click", async e => {
   try {
     const { res, data } = await adminFetch({ method: "POST", body: { action, id } });
     if (res.ok) {
-      showToast({ approve: "Təsdiqləndi — saatlar saytda dolu görünür", reject: "İmtina edildi", delete: "Silindi" }[action]);
+      showToast({
+        approve: "Təsdiqləndi — saatlar saytda dolu görünür",
+        reject: "İmtina edildi",
+        delete: "Silindi",
+        check_payment: "Ödəniş statusu: " + (PAYMENT_STATUS_LABELS[data.payment] || data.payment),
+      }[action]);
     } else if (res.status !== 401) {
       showToast(data.error || "Xəta baş verdi");
     }
@@ -286,7 +301,45 @@ function renderPriceExample() {
   priceExample.textContent = `Məsələn: 1 saat — ${price} AZN, 2 saat — ${price * 2} AZN, 3 saat — ${price * 3} AZN`;
 }
 
+const payriffForm = document.getElementById("payriffForm");
+const payriffSecret = document.getElementById("payriffSecret");
+const payriffStatus = document.getElementById("payriffStatus");
+const payriffDisable = document.getElementById("payriffDisable");
+
+function renderPayriffStatus(configured) {
+  payriffStatus.textContent = configured ? "Qoşulub — ödəniş aktivdir" : "Qoşulmayıb — rezervasiyalar ödənişsiz qəbul olunur";
+  payriffStatus.classList.toggle("is-on", !!configured);
+  payriffDisable.hidden = !configured;
+}
+
+async function savePayriffSecret(secret) {
+  try {
+    const { res, data } = await adminFetch({ method: "POST", body: { action: "set_payriff", secret } });
+    if (res.ok) {
+      payriffSecret.value = "";
+      renderPayriffStatus(data.settings && data.settings.payriff_configured);
+      showToast(secret ? "Payriff qoşuldu" : "Onlayn ödəniş söndürüldü");
+    } else if (res.status !== 401) {
+      showToast(data.error || "Xəta baş verdi");
+    }
+  } catch (err) {
+    showToast("Serverə qoşulmaq olmadı");
+  }
+}
+
+payriffForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const secret = payriffSecret.value.trim();
+  if (!secret) { showToast("Açarı yapışdırın"); return; }
+  savePayriffSecret(secret);
+});
+
+payriffDisable.addEventListener("click", () => {
+  if (confirm("Onlayn ödəniş söndürülsün? Rezervasiyalar ödənişsiz qəbul olunacaq.")) savePayriffSecret("");
+});
+
 function renderSettings(settings) {
+  renderPayriffStatus(settings.payriff_configured);
   /* İstifadəçi hazırda yazırsa, dəyəri üstündən yazmırıq */
   if (document.activeElement !== pricePerHourInput) {
     pricePerHourInput.value = settings.price_per_hour;

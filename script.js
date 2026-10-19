@@ -813,6 +813,7 @@ bookingForm.addEventListener("submit", async e => {
         date: bookingDate.value,
         time: bookingTime.value,
         end: bookingEnd.value,
+        lang: currentLang,
       }),
     });
     data = await res.json();
@@ -834,6 +835,14 @@ bookingForm.addEventListener("submit", async e => {
   if (!res.ok) {
     /* Serverin xəta mətni azərbaycancadır — başqa dildə ümumi mesaj göstəririk */
     showBookingNote((currentLang === "az" && data.error) || t("note.error"));
+    return;
+  }
+
+  /* Payriff qoşulubsa — tam məbləği ödəmək üçün ödəniş səhifəsinə keçid */
+  if (data.payment_url) {
+    submitBtn.disabled = true;
+    showBookingNote(t("note.redirect", { total: data.total }), true);
+    window.location.href = data.payment_url;
     return;
   }
 
@@ -877,3 +886,11 @@ function rerenderForLang() {
 /* ---------- INIT ---------- */
 renderPortfolio();
 setLang(savedLang);
+
+/* Payriff-dən qayıdanda (?payment=success|fail|pending) nəticəni göstəririk */
+const paymentResult = new URLSearchParams(location.search).get("payment");
+if (["success", "fail", "pending"].includes(paymentResult)) {
+  showView("booking");
+  showBookingNote(t("payment." + paymentResult), paymentResult === "success");
+  history.replaceState(null, "", location.pathname);
+}

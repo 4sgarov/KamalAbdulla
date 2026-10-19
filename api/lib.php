@@ -24,7 +24,8 @@ const END_LIMIT = '21:00';
 const DATA_FILE = __DIR__ . '/../data/bookings.php';
 const SETTINGS_FILE = __DIR__ . '/../data/settings.php';
 const AUTH_FILE = __DIR__ . '/../data/admin-auth.php';
-const DEFAULT_SETTINGS = ['price_per_hour' => 25];
+const DEFAULT_SETTINGS = ['price_per_hour' => 25, 'payriff_secret' => ''];
+const PAYRIFF_API = 'https://api.payriff.com';
 const DATA_GUARD = "<?php http_response_code(404); exit; ?>\n";
 
 date_default_timezone_set('Asia/Baku');
@@ -148,5 +149,86 @@ function get_settings(): array
 {
     $settings = array_merge(DEFAULT_SETTINGS, read_json_file(SETTINGS_FILE));
     $settings['price_per_hour'] = max(0, (int)$settings['price_per_hour']);
+    $settings['payriff_secret'] = (string)$settings['payriff_secret'];
     return $settings;
+}
+
+/** Admin paneldə göstərilən ayarlar — Payriff açarının özü heç vaxt qaytarılmır */
+function admin_settings(): array
+{
+    $s = get_settings();
+    return ['price_per_hour' => $s['price_per_hour'], 'payriff_configured' => $s['payriff_secret'] !== ''];
+}
+
+/* ---------- Payriff ödənişi ----------
+   Kart, Apple Pay və Google Pay Payriff-in ödəniş səhifəsində seçilir.
+   Callback-lər imzalanmır — ödənişin statusu hər dəfə Payriff API-dən
+   yoxlanılır (payriff_order_status), callback-in məzmununa etibar edilmir. */
+function payriff_request(string $method, string $path, ?array $body = null): ?array
+{
+    $secret = get_settings()['payriff_secret'];
+    if ($secret === '') return null;
+
+    $headers = ['Authorization: ' . $secret, 'Content-Type: application/json', 'Accept: application/json'];
+    $payload = $body === null ? null : json_encode($body, JSON_UNESCAPED_UNICODE);
+
+    if (function_exists('curl_init')) {
+        $ch = curl_init(PAYRIFF_API . $path);
+        curl_setopt_array($ch, [
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 20,
+        ]);
+        if ($payload !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        $raw = curl_exec($ch);
+        curl_close($ch);
+    } else {
+        $raw = @file_get_contents(PAYRIFF_API . $path, false, stream_context_create(['http' => [
+            'method' => $method,
+            'header' => implode("\r\n", $headers),
+            'content' => $payload ?? '',
+            'timeout' => 20,
+            'ignore_errors' => true,
+        ]]));
+    }
+    if (!is_string($raw) || $raw === '') return null;
+    $data = json_decode($raw, true);
+    return is_array($data) ? $data : null;
+}
+
+/** Payriff-də sifariş yaradır; ['order_id' => ..., 'payment_url' => ...] və ya null */
+function payriff_create_order(float $amount, string $description, string $callbackUrl, string $language): ?array
+{
+    $res = payriff_request('POST', '/api/v3/orders', [
+        'amount' => round($amount, 2),
+        'language' => $language,
+        'currency' => 'AZN',
+        'description' => $description,
+        'callbackUrl' => $callbackUrl,
+        'cardSave' => false,
+        'operation' => 'PURCHASE',
+    ]);
+    $payload = is_array($res['payload'] ?? null) ? $res['payload'] : [];
+    if (empty($payload['orderId']) || empty($payload['paymentUrl'])) return null;
+    return ['order_id' => (string)$payload['orderId'], 'payment_url' => (string)$payload['paymentUrl']];
+}
+
+/** Sifarişin Payriff-dəki statusu: "paid", "failed", "pending" və ya null (yoxlamaq olmadı) */
+function payriff_order_status(string $orderId): ?string
+{
+    $res = payriff_request('GET', '/api/v3/orders/' . rawurlencode($orderId));
+    $payload = $res['payload'] ?? null;
+    $status = is_array($payload) ? strtoupper((string)($payload['paymentStatus'] ?? '')) : strtoupper((string)$payload);
+    if ($status === '') return null;
+    if (in_array($status, ['APPROVED', 'PAID', 'COMPLETED'], true)) return 'paid';
+    if (in_array($status, ['DECLINED', 'CANCELED', 'EXPIRED', 'REVERSE', 'REFUNDED'], true)) return 'failed';
+    return 'pending';
+}
+
+/** Saytın əsas ünvanı (callback və geri qayıtma linkləri üçün) */
+function site_url(): string
+{
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'kamalabdulla.com');
 }

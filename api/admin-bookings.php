@@ -9,6 +9,8 @@
  *                    {"action": "approve"|"reject"|"pending"|"delete", "id": "..."}
  *                    {"action": "change_password", "new_password": "..."}
  *                    {"action": "set_price", "price_per_hour": 25}
+ *                    {"action": "set_payriff", "secret": "..."}  — boş göndərilsə ödəniş söndürülür
+ *                    {"action": "check_payment", "id": "..."} — statusu Payriff-dən yenidən yoxlayır
  *
  * Təsdiqlənən rezervasiya həmin gün saat aralığını tutur — saytda "Dolu" görünür.
  * Aralığı başqa təsdiqlənmiş rezervasiya ilə üst-üstə düşəni təsdiqləmək olmaz (409).
@@ -50,7 +52,7 @@ if ($method === 'GET') {
     $bookings = read_store($fh);
     close_store($fh);
     usort($bookings, fn($a, $b) => strcmp(($b['date'] ?? '') . ($b['time'] ?? ''), ($a['date'] ?? '') . ($a['time'] ?? '')));
-    respond(200, ['bookings' => $bookings, 'settings' => get_settings()]);
+    respond(200, ['bookings' => $bookings, 'settings' => admin_settings()]);
 }
 
 if ($method !== 'POST') {
@@ -90,7 +92,33 @@ if ($action === 'set_price') {
     $settings = get_settings();
     $settings['price_per_hour'] = (int)$price;
     if (!write_json_file(SETTINGS_FILE, $settings)) respond(500, ['error' => 'Ayarları yadda saxlamaq olmadı.']);
-    respond(200, ['ok' => true, 'settings' => $settings]);
+    respond(200, ['ok' => true, 'settings' => admin_settings()]);
+}
+
+if ($action === 'set_payriff') {
+    $secret = trim((string)($input['secret'] ?? ''));
+    if (mb_strlen($secret) > 200) respond(422, ['error' => 'Açar çox uzundur.']);
+    $settings = get_settings();
+    $settings['payriff_secret'] = $secret;
+    if (!write_json_file(SETTINGS_FILE, $settings)) respond(500, ['error' => 'Ayarları yadda saxlamaq olmadı.']);
+    respond(200, ['ok' => true, 'settings' => admin_settings()]);
+}
+
+if ($action === 'check_payment') {
+    $fh = open_store(true);
+    $bookings = read_store($fh);
+    foreach ($bookings as $i => $b) {
+        if (($b['id'] ?? '') !== $id) continue;
+        if (empty($b['payriff_order_id'])) { close_store($fh); respond(422, ['error' => 'Bu rezervasiya üçün ödəniş yaradılmayıb.']); }
+        $status = payriff_order_status((string)$b['payriff_order_id']);
+        if ($status === null) { close_store($fh); respond(502, ['error' => 'Payriff-dən cavab alınmadı.']); }
+        $bookings[$i]['payment'] = $status === 'paid' ? 'paid' : ($status === 'failed' ? 'failed' : 'unpaid');
+        write_store($fh, $bookings);
+        close_store($fh);
+        respond(200, ['ok' => true, 'payment' => $bookings[$i]['payment']]);
+    }
+    close_store($fh);
+    respond(404, ['error' => 'Rezervasiya tapılmadı.']);
 }
 
 $statuses = ['approve' => 'approved', 'reject' => 'rejected', 'pending' => 'pending'];

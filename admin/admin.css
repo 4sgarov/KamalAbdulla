@@ -749,3 +749,35 @@
   color: var(--muted);
   margin: 0;
 }
+
+/* ---------- ÖDƏNİŞ ---------- */
+.payment-status {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.payment-status.paid { color: #50c878; }
+.payment-status.failed { color: #ff7a7a; }
+
+.admin-link-btn {
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-settings-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#payriffStatus.is-on { color: #50c878; }

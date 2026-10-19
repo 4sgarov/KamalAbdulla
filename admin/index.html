@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=20261019-4">
-<link rel="stylesheet" href="admin.css?v=20261019-4">
+<link rel="stylesheet" href="../style.css?v=20261019-5">
+<link rel="stylesheet" href="admin.css?v=20261019-5">
 </head>
 <body>
 
@@ -137,6 +137,17 @@
         </label>
         <p class="admin-settings-hint" id="priceExample"></p>
         <button type="submit" class="submit-btn">Yadda saxla</button>
+      </form>
+
+      <form class="auth-form admin-settings-form" id="payriffForm">
+        <h2 class="admin-settings-title">Onlayn ödəniş (Payriff)</h2>
+        <p class="admin-settings-hint">Status: <strong id="payriffStatus">—</strong></p>
+        <p class="admin-settings-hint">Ziyarətçi rezervasiya edəndə tam məbləği kartla, Apple Pay və ya Google Pay ilə ödəyir. Açarı Payriff kabinetindən (Secret key) götürüb bura yapışdırın.</p>
+        <input type="password" id="payriffSecret" placeholder="Payriff Secret key" autocomplete="off">
+        <div class="admin-settings-actions">
+          <button type="submit" class="submit-btn">Yadda saxla</button>
+          <button type="button" class="admin-text-btn" id="payriffDisable">Ödənişi söndür</button>
+        </div>
       </form>
 
       <form class="auth-form admin-settings-form" id="passwordForm">
@@ -340,7 +351,7 @@
 
 <div class="admin-toast" id="adminToast"></div>
 
-<script src="../assets/data.js?v=20261019-4"></script>
-<script src="admin.js?v=20261019-4"></script>
+<script src="../assets/data.js?v=20261019-5"></script>
+<script src="admin.js?v=20261019-5"></script>
 </body>
 </html>

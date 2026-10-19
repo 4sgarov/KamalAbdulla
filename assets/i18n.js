@@ -57,6 +57,10 @@ const I18N = {
     "note.sendFail": "Rezervasiyanı göndərmək olmadı. İnternet bağlantınızı yoxlayıb yenidən cəhd edin.",
     "note.slotTaken": "Seçdiyiniz aralıqda artıq dolu saat var. Zəhmət olmasa başqa vaxt seçin.",
     "note.error": "Xəta baş verdi. Yenidən cəhd edin.",
+    "note.redirect": "Ödəniş səhifəsinə yönləndirilirsiniz — {total} AZN (kart, Apple Pay, Google Pay)…",
+    "payment.success": "Ödəniş uğurla tamamlandı. Rezervasiyanız admin təsdiqlədikdən sonra qüvvəyə minəcək, sizinlə əlaqə saxlayacağıq.",
+    "payment.fail": "Ödəniş alınmadı və rezervasiya tamamlanmadı. Zəhmət olmasa yenidən cəhd edin.",
+    "payment.pending": "Ödənişin nəticəsi hələ bəlli deyil. Təsdiq gələn kimi sizinlə əlaqə saxlayacağıq.",
     "note.success": "Sorğunuz göndərildi — {date}, saat {time}. Admin təsdiqlədikdən sonra sizinlə əlaqə saxlayacağıq.",
 
     "video.trailer": "Trailer",
@@ -141,6 +145,10 @@ const I18N = {
     "note.sendFail": "Couldn't send your booking. Check your internet connection and try again.",
     "note.slotTaken": "Part of this time range is already booked. Please pick another time.",
     "note.error": "Something went wrong. Please try again.",
+    "note.redirect": "Redirecting you to the payment page — {total} AZN (card, Apple Pay, Google Pay)…",
+    "payment.success": "Payment completed. Your booking takes effect once the admin approves it — we'll be in touch.",
+    "payment.fail": "The payment didn't go through and the booking wasn't completed. Please try again.",
+    "payment.pending": "The payment result isn't confirmed yet. We'll contact you as soon as it is.",
     "note.success": "Your request has been sent — {date}, {time}. We'll contact you once the admin approves it.",
 
     "video.trailer": "Trailer",
@@ -225,6 +233,10 @@ const I18N = {
     "note.sendFail": "Не удалось отправить запись. Проверьте подключение к интернету и попробуйте снова.",
     "note.slotTaken": "Часть выбранного интервала уже занята. Пожалуйста, выберите другое время.",
     "note.error": "Произошла ошибка. Попробуйте ещё раз.",
+    "note.redirect": "Переходим на страницу оплаты — {total} AZN (карта, Apple Pay, Google Pay)…",
+    "payment.success": "Оплата прошла успешно. Запись вступит в силу после подтверждения администратором — мы свяжемся с вами.",
+    "payment.fail": "Оплата не прошла, запись не завершена. Пожалуйста, попробуйте ещё раз.",
+    "payment.pending": "Результат оплаты пока не подтверждён. Мы свяжемся с вами, как только он поступит.",
     "note.success": "Ваша заявка отправлена — {date}, {time}. Мы свяжемся с вами после подтверждения администратором.",
 
     "video.trailer": "Трейлер",
