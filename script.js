@@ -370,7 +370,6 @@ document.addEventListener("keydown", e => {
    istifadəçi həqiqətən data.js-in users siyahısına əlavə olunur (bu
    brauzerdə) və Admin Panel > Users bölməsində görünür. Real layihədə
    bu, backend-də login/qeydiyyat endpoint-lərinə bağlanmalıdır. */
-const subscribeBtn = document.getElementById("subscribeBtn");
 const authModal = document.getElementById("authModal");
 const authModalBox = document.querySelector(".auth-modal-box");
 const authModalClose = document.getElementById("authModalClose");
@@ -418,7 +417,6 @@ function renderPurchasedList() {
   });
 }
 
-subscribeBtn.addEventListener("click", openAuthModal);
 authModalClose.addEventListener("click", closeAuthModal);
 authModal.addEventListener("click", e => {
   if (e.target === authModal) closeAuthModal();
@@ -483,56 +481,6 @@ termsModal.addEventListener("click", e => {
 
 document.addEventListener("keydown", e => {
   if (termsModal.classList.contains("show") && e.key === "Escape") closeTermsModal();
-});
-
-/* ---------- RENDER + READ: BLOG ---------- */
-const blogList = document.getElementById("blogList");
-const blogModal = document.getElementById("blogModal");
-const blogModalBox = document.querySelector(".blog-modal-box");
-const blogModalClose = document.getElementById("blogModalClose");
-const blogModalDate = document.getElementById("blogModalDate");
-const blogModalTitle = document.getElementById("blogModalTitle");
-const blogModalBody = document.getElementById("blogModalBody");
-
-function renderBlogList() {
-  const posts = getBlogPosts();
-  blogList.innerHTML = posts.map(post => `
-    <button class="blog-item" data-post="${escapeHtml(post.id)}">
-      <span class="blog-date">${escapeHtml(tContent("blog", post.id, "date", post.date))}</span>
-      <span class="blog-title">${escapeHtml(tContent("blog", post.id, "title", post.title))}</span>
-    </button>
-  `).join("");
-}
-
-function openBlogPost(id) {
-  const post = getBlogPosts().find(p => p.id === id);
-  if (!post) return;
-
-  blogModalDate.textContent = tContent("blog", post.id, "date", post.date);
-  blogModalTitle.textContent = tContent("blog", post.id, "title", post.title);
-  blogModalBody.innerHTML = "";
-  tContent("blog", post.id, "paragraphs", post.paragraphs).forEach(text => {
-    const p = document.createElement("p");
-    p.textContent = text;
-    blogModalBody.appendChild(p);
-  });
-
-  openModalAnimated(blogModal, blogModalBox);
-  blogModal.scrollTop = 0;
-}
-
-function closeBlogPost() {
-  closeModalAnimated(blogModal);
-}
-
-blogList.addEventListener("click", e => {
-  const item = e.target.closest(".blog-item");
-  if (item) openBlogPost(item.dataset.post);
-});
-
-blogModalClose.addEventListener("click", closeBlogPost);
-document.addEventListener("keydown", e => {
-  if (blogModal.classList.contains("show") && e.key === "Escape") closeBlogPost();
 });
 
 /* ---------- BOOKING: KALENDAR ----------
@@ -849,7 +797,6 @@ window.addEventListener("storage", e => {
   if (e.key === STORAGE_KEYS.portfolio) { renderPortfolio(); applyFilter(currentFilter); }
   if (e.key === STORAGE_KEYS.categories) { renderPortfolioFilters(); applyFilter(currentFilter); }
   if (e.key === STORAGE_KEYS.seminars) renderSeminars();
-  if (e.key === STORAGE_KEYS.blog) renderBlogList();
 });
 
 /* ---------- DİL DƏYİŞƏNDƏ YENİDƏN ÇƏKMƏ ---------- */
@@ -858,7 +805,6 @@ function rerenderForLang() {
   renderPortfolioFilters();
   applyFilter(currentFilter);
   renderSeminars();
-  renderBlogList();
   renderWeekdays();
   renderCalendar();
   renderCalendarSelected();

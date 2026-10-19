@@ -11,7 +11,6 @@ const I18N = {
     "nav.about": "Haqqımda",
     "nav.portfolio": "Portfolio",
     "nav.seminar": "Seminar",
-    "nav.blog": "Bloq",
     "nav.contact": "Əlaqə",
     "nav.book": "Rezervasiya",
     "menu": "Menyu",
@@ -21,7 +20,6 @@ const I18N = {
     "next": "Növbəti",
 
     "portfolio.all": "Hamısı",
-    "seminar.subscribe": "Abunə ol",
     "seminar.play": "Videoya bax",
 
     "contact.email": "Email",
@@ -103,7 +101,6 @@ const I18N = {
     "nav.about": "About Me",
     "nav.portfolio": "Portfolio",
     "nav.seminar": "Seminar",
-    "nav.blog": "Blog",
     "nav.contact": "Contact",
     "nav.book": "Book Now",
     "menu": "Menu",
@@ -113,7 +110,6 @@ const I18N = {
     "next": "Next",
 
     "portfolio.all": "All",
-    "seminar.subscribe": "Subscribe",
     "seminar.play": "Watch video",
 
     "contact.email": "Email",
@@ -195,7 +191,6 @@ const I18N = {
     "nav.about": "Обо мне",
     "nav.portfolio": "Портфолио",
     "nav.seminar": "Семинары",
-    "nav.blog": "Блог",
     "nav.contact": "Контакты",
     "nav.book": "Записаться",
     "menu": "Меню",
@@ -205,7 +200,6 @@ const I18N = {
     "next": "Вперёд",
 
     "portfolio.all": "Все",
-    "seminar.subscribe": "Подписаться",
     "seminar.play": "Смотреть видео",
 
     "contact.email": "Email",
@@ -299,35 +293,6 @@ const CONTENT_I18N = {
       "say-growth": { description: "Practical tools for strengthening a brand's connection with its audience, growing market share and building sustainable growth strategies." },
       "digital-mindset": { description: "Developing the right mindset for the digital age, adapting to new technologies and finding innovative solutions." },
       "public-speaking-lab": { description: "A hands-on workshop for overcoming stage fright, speaking with confidence and clarity, and mastering techniques that engage an audience." }
-    },
-    blog: {
-      "post-1": {
-        date: "12 Jan 2026",
-        title: "A new seminar series has been announced",
-        paragraphs: [
-          "We're happy to announce a new seminar series for 2026. The series is built around growth strategies, a digital mindset and public speaking skills.",
-          "Every seminar includes practical exercises and gives participants the chance to work on real examples.",
-          "Registration details and prices are in the Seminar section. Places are limited, so we recommend signing up in advance."
-        ]
-      },
-      "post-2": {
-        date: "03 Nov 2025",
-        title: "Portfolio updated with new projects",
-        paragraphs: [
-          "Projects completed in recent months have been added to the Portfolio section. Each one covers a different industry and format.",
-          "The goal isn't just to show visuals, but also to reflect the idea and the process behind every project.",
-          "You can find more about the new projects in the Portfolio section."
-        ]
-      },
-      "post-3": {
-        date: "21 Sep 2025",
-        title: "Results of the Digital Mindset seminar",
-        paragraphs: [
-          "The Digital Mindset seminar was held to help participants develop a digital way of thinking.",
-          "Most participants said that after the seminar they approach technology in their work more strategically.",
-          "The date of the next Digital Mindset seminar will be announced soon."
-        ]
-      }
     }
   },
   ru: {
@@ -341,35 +306,6 @@ const CONTENT_I18N = {
       "say-growth": { description: "Практические инструменты для укрепления связи бренда с аудиторией, увеличения доли рынка и построения стратегий устойчивого роста." },
       "digital-mindset": { description: "Формирование мышления цифровой эпохи, адаптация к новым технологиям и поиск инновационных решений." },
       "public-speaking-lab": { description: "Практический тренинг, который поможет преодолеть страх сцены, говорить уверенно и ясно и освоить техники, вовлекающие аудиторию." }
-    },
-    blog: {
-      "post-1": {
-        date: "12 янв 2026",
-        title: "Объявлена новая серия семинаров",
-        paragraphs: [
-          "Рады объявить новую серию семинаров на 2026 год. Серия посвящена стратегиям роста, цифровому мышлению и навыкам публичных выступлений.",
-          "Каждый семинар сопровождается практическими занятиями и даёт участникам возможность поработать на реальных примерах.",
-          "Информация о регистрации и ценах — в разделе «Семинары». Количество мест ограничено, поэтому советуем записаться заранее."
-        ]
-      },
-      "post-2": {
-        date: "03 ноя 2025",
-        title: "Портфолио пополнилось новыми проектами",
-        paragraphs: [
-          "Проекты, завершённые в последние месяцы, добавлены в раздел «Портфолио». Каждый из них выполнен для разной отрасли и в разном формате.",
-          "Цель — не просто показать визуальные примеры, но и отразить идею и процесс, стоящие за каждым проектом.",
-          "Подробнее о новых проектах можно узнать в разделе «Портфолио»."
-        ]
-      },
-      "post-3": {
-        date: "21 сен 2025",
-        title: "Итоги семинара Digital Mindset",
-        paragraphs: [
-          "Семинар Digital Mindset был проведён, чтобы помочь участникам сформировать цифровое мышление.",
-          "Большинство участников отметили, что после семинара стали более стратегически подходить к технологиям в своей работе.",
-          "Дата следующего семинара Digital Mindset будет объявлена в ближайшее время."
-        ]
-      }
     }
   }
 };
@@ -388,7 +324,7 @@ function t(key, vars) {
 }
 
 /* Default məzmunun tərcüməsini qaytarır; admin mətni dəyişibsə — orijinalı.
-   kind: "about" | "seminars" | "blog"; id: about üçün null. */
+   kind: "about" | "seminars"; id: about üçün null. */
 function tContent(kind, id, field, original) {
   const langContent = CONTENT_I18N[currentLang];
   if (!langContent || !langContent[kind]) return original;
@@ -398,7 +334,6 @@ function tContent(kind, id, field, original) {
   let def;
   if (kind === "about") def = DEFAULT_ABOUT;
   else if (kind === "seminars") def = DEFAULT_SEMINARS.find(s => s.id === id);
-  else if (kind === "blog") def = DEFAULT_BLOG.find(p => p.id === id);
   if (!def || JSON.stringify(def[field]) !== JSON.stringify(original)) return original;
   return translated;
 }
