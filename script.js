@@ -18,6 +18,20 @@ function closeModalAnimated(modal, after) {
   });
 }
 
+/* ---------- DİL SEÇİMİ ---------- */
+const langBtns = document.querySelectorAll(".lang-btn");
+
+function setLang(lang) {
+  langBtns.forEach(btn => btn.classList.toggle("active", btn.dataset.lang === lang));
+  document.documentElement.lang = lang;
+  try { localStorage.setItem("lang", lang); } catch (e) {}
+}
+
+let savedLang = "az";
+try { savedLang = localStorage.getItem("lang") || "az"; } catch (e) {}
+setLang(savedLang);
+langBtns.forEach(btn => btn.addEventListener("click", () => setLang(btn.dataset.lang)));
+
 /* ---------- NAV / VIEW SWITCHING ---------- */
 const navLinks = document.querySelectorAll(".nav-link");
 const bookBtn = document.querySelector(".book-btn");

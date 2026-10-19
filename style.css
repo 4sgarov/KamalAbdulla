@@ -48,6 +48,52 @@ html, body {
   margin-bottom: 40px;
 }
 
+.sidebar .logo {
+  margin-bottom: 16px;
+}
+
+/* ---------- LANGUAGE SWITCH ---------- */
+.lang-switch {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 32px;
+}
+
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 7px;
+  background: var(--panel-2);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+
+.lang-btn:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, .15);
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  color: #101010;
+}
+
+.flag {
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
 .nav {
   display: flex;
   flex-direction: column;
