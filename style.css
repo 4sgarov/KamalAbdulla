@@ -62,34 +62,27 @@ html, body {
 .lang-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px 6px 7px;
+  justify-content: center;
+  padding: 7px 9px;
   background: var(--panel-2);
   border: 1px solid transparent;
   border-radius: 14px;
-  color: var(--muted);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .5px;
-  line-height: 1;
+  line-height: 0;
   cursor: pointer;
   transition: background .2s, color .2s, border-color .2s;
 }
 
 .lang-btn:hover {
-  color: var(--text);
   border-color: rgba(255, 255, 255, .15);
 }
 
 .lang-btn.active {
   background: var(--accent);
-  color: #101010;
 }
 
 .flag {
-  width: 18px;
-  height: 12px;
+  width: 22px;
+  height: 15px;
   border-radius: 2px;
   flex-shrink: 0;
 }
