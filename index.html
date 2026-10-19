@@ -18,7 +18,7 @@
     <div class="sidebar-top">
       <img class="logo" src="assets/logo.svg" alt="Kamal Abdulla">
 
-      <div class="lang-switch" role="group" aria-label="Language">
+      <div class="lang-switch" role="group" data-i18n-aria="language" aria-label="Language">
         <button type="button" class="lang-btn active" data-lang="az" aria-label="Azərbaycan dili">
           <svg class="flag" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true"><rect width="60" height="10" fill="#00B5E2"/><rect y="10" width="60" height="10" fill="#EF3340"/><rect y="20" width="60" height="10" fill="#509E2F"/><circle cx="29" cy="15" r="3.6" fill="#fff"/><circle cx="30" cy="15" r="3" fill="#EF3340"/><circle cx="33.5" cy="15" r="1.4" fill="#fff"/></svg>
         </button>
@@ -31,21 +31,21 @@
       </div>
 
       <nav class="nav">
-        <button class="nav-link active" data-target="about">About Me</button>
-        <button class="nav-link" data-target="portfolio">Portfolio</button>
-        <button class="nav-link" data-target="seminar">Seminar</button>
-        <button class="nav-link" data-target="blog">Blog</button>
-        <button class="nav-link" data-target="contact">Contact</button>
+        <button class="nav-link active" data-target="about" data-i18n="nav.about">About Me</button>
+        <button class="nav-link" data-target="portfolio" data-i18n="nav.portfolio">Portfolio</button>
+        <button class="nav-link" data-target="seminar" data-i18n="nav.seminar">Seminar</button>
+        <button class="nav-link" data-target="blog" data-i18n="nav.blog">Blog</button>
+        <button class="nav-link" data-target="contact" data-i18n="nav.contact">Contact</button>
       </nav>
     </div>
 
-    <button class="book-btn" data-target="booking">Book Now</button>
+    <button class="book-btn" data-target="booking" data-i18n="nav.book">Book Now</button>
   </aside>
 
   <!-- MOBIL HEADER -->
   <header class="mobile-header">
     <img class="logo" src="assets/logo.svg" alt="Kamal Abdulla">
-    <button class="burger" id="burgerBtn" aria-label="Menu">
+    <button class="burger" id="burgerBtn" data-i18n-aria="menu" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
   </header>
@@ -56,7 +56,7 @@
 
       <section class="view active" data-view="about">
         <div class="about-layout">
-          <h1 class="view-title about-title">About Me</h1>
+          <h1 class="view-title about-title" data-i18n="nav.about">About Me</h1>
           <div class="about-photo">
             <img id="aboutPhoto" src="assets/photo.svg" alt="Kamal Abdulla">
           </div>
@@ -65,7 +65,7 @@
       </section>
 
       <section class="view" data-view="portfolio">
-        <h1 class="view-title">Portfolio</h1>
+        <h1 class="view-title" data-i18n="nav.portfolio">Portfolio</h1>
 
         <div class="portfolio-filters" id="portfolioFilters"></div>
 
@@ -73,28 +73,28 @@
       </section>
 
       <section class="view" data-view="seminar">
-        <h1 class="view-title">Seminar</h1>
+        <h1 class="view-title" data-i18n="nav.seminar">Seminar</h1>
         <div class="seminar-grid" id="seminarGrid"></div>
 
         <div class="seminar-footer">
-          <button class="subscribe-btn" id="subscribeBtn">Subscribe</button>
+          <button class="subscribe-btn" id="subscribeBtn" data-i18n="seminar.subscribe">Subscribe</button>
         </div>
       </section>
 
       <section class="view" data-view="blog">
-        <h1 class="view-title">Blog</h1>
+        <h1 class="view-title" data-i18n="nav.blog">Blog</h1>
         <div class="blog-list" id="blogList"></div>
       </section>
 
       <section class="view" data-view="contact">
-        <h1 class="view-title">Contact</h1>
+        <h1 class="view-title" data-i18n="nav.contact">Contact</h1>
 
         <div class="contact-grid">
           <a class="contact-card" href="mailto:info@kamalabdulla.com">
             <span class="contact-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
             </span>
-            <span class="contact-label">Email</span>
+            <span class="contact-label" data-i18n="contact.email">Email</span>
             <span class="contact-value">info@kamalabdulla.com</span>
           </a>
 
@@ -118,8 +118,8 @@
             <span class="contact-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
             </span>
-            <span class="contact-label">Location</span>
-            <span class="contact-value">Baku, Azerbaijan</span>
+            <span class="contact-label" data-i18n="contact.location">Location</span>
+            <span class="contact-value" data-i18n="contact.locationValue">Baku, Azerbaijan</span>
           </a>
         </div>
 
@@ -128,27 +128,27 @@
             src="https://www.google.com/maps?q=Baku,Azerbaijan&output=embed"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
-            title="Xəritədə məkan">
+            data-i18n-title="contact.map" title="Xəritədə məkan">
           </iframe>
         </div>
       </section>
 
       <section class="view" data-view="booking">
-        <h1 class="view-title">Book Now</h1>
-        <p>Seminar və ya konsultasiya üçün məlumatlarınızı yazın, uyğun gün və saatı seçin, ödəniş növünü qeyd edin.</p>
+        <h1 class="view-title" data-i18n="nav.book">Book Now</h1>
+        <p data-i18n="booking.intro">Seminar və ya konsultasiya üçün məlumatlarınızı yazın, uyğun gün və saatı seçin, ödəniş növünü qeyd edin.</p>
         <form class="booking-form" id="bookingForm" novalidate>
-          <input type="text" id="bookingName" placeholder="Ad Soyad" required>
-          <input type="email" id="bookingEmail" placeholder="Email" required>
-          <input type="tel" id="bookingPhone" placeholder="Telefon nömrəsi" required>
+          <input type="text" id="bookingName" data-i18n-ph="booking.name" placeholder="Ad Soyad" required>
+          <input type="email" id="bookingEmail" data-i18n-ph="booking.email" placeholder="Email" required>
+          <input type="tel" id="bookingPhone" data-i18n-ph="booking.phone" placeholder="Telefon nömrəsi" required>
 
           <!-- Kalendar: seçilmiş tarix gizli input-da (YYYY-MM-DD) saxlanılır -->
           <div class="booking-calendar" id="bookingCalendar">
             <div class="calendar-header">
-              <button type="button" class="calendar-nav" id="calendarPrev" aria-label="Əvvəlki ay">&#8249;</button>
+              <button type="button" class="calendar-nav" id="calendarPrev" data-i18n-aria="cal.prev" aria-label="Əvvəlki ay">&#8249;</button>
               <span class="calendar-month" id="calendarMonth"></span>
-              <button type="button" class="calendar-nav" id="calendarNext" aria-label="Növbəti ay">&#8250;</button>
+              <button type="button" class="calendar-nav" id="calendarNext" data-i18n-aria="cal.next" aria-label="Növbəti ay">&#8250;</button>
             </div>
-            <div class="calendar-weekdays">
+            <div class="calendar-weekdays" id="calendarWeekdays">
               <span>B.e</span><span>Ç.a</span><span>Ç</span><span>C.a</span><span>C</span><span>Ş</span><span>B</span>
             </div>
             <div class="calendar-days" id="calendarDays"></div>
@@ -158,36 +158,36 @@
 
           <!-- Saatlar: tarix seçiləndən sonra görünür, seçilmiş saat gizli input-da (HH:MM) -->
           <div class="booking-step" id="bookingTimes" hidden>
-            <p class="booking-step-title">Saat seçin</p>
+            <p class="booking-step-title" data-i18n="time.pick">Saat seçin</p>
             <div class="time-slots" id="timeSlots"></div>
             <input type="hidden" id="bookingTime" name="time">
           </div>
 
           <!-- Ödəniş növü: saat seçiləndən sonra görünür -->
           <fieldset class="booking-step" id="bookingPayment" hidden>
-            <legend class="booking-step-title">Ödəniş növü</legend>
+            <legend class="booking-step-title" data-i18n="pay.title">Ödəniş növü</legend>
             <div class="payment-options">
               <label class="payment-option">
                 <input type="radio" name="payment" value="card">
-                <span class="payment-option-title">Kartla onlayn</span>
-                <span class="payment-option-desc">Visa / Mastercard</span>
+                <span class="payment-option-title" data-i18n="pay.card">Kartla onlayn</span>
+                <span class="payment-option-desc" data-i18n="pay.cardDesc">Visa / Mastercard</span>
               </label>
               <label class="payment-option">
                 <input type="radio" name="payment" value="transfer">
-                <span class="payment-option-title">Bank köçürməsi</span>
-                <span class="payment-option-desc">Rekvizitlər emailə göndərilir</span>
+                <span class="payment-option-title" data-i18n="pay.transfer">Bank köçürməsi</span>
+                <span class="payment-option-desc" data-i18n="pay.transferDesc">Rekvizitlər emailə göndərilir</span>
               </label>
               <label class="payment-option">
                 <input type="radio" name="payment" value="cash">
-                <span class="payment-option-title">Nağd</span>
-                <span class="payment-option-desc">Görüş zamanı yerində</span>
+                <span class="payment-option-title" data-i18n="pay.cash">Nağd</span>
+                <span class="payment-option-desc" data-i18n="pay.cashDesc">Görüş zamanı yerində</span>
               </label>
             </div>
           </fieldset>
 
-          <textarea rows="4" id="bookingMessage" placeholder="Mesajınız"></textarea>
+          <textarea rows="4" id="bookingMessage" data-i18n-ph="booking.message" placeholder="Mesajınız"></textarea>
           <p class="booking-note" id="bookingNote" hidden></p>
-          <button type="submit" class="submit-btn">Rezerv et</button>
+          <button type="submit" class="submit-btn" data-i18n="booking.submit">Rezerv et</button>
         </form>
       </section>
 
@@ -198,20 +198,20 @@
 <div class="overlay" id="overlay"></div>
 
 <div class="lightbox" id="lightbox">
-  <button class="lightbox-close" id="lightboxClose" aria-label="Bağla">&times;</button>
-  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Əvvəlki">&#10094;</button>
+  <button class="lightbox-close" id="lightboxClose" data-i18n-aria="close" aria-label="Bağla">&times;</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" data-i18n-aria="prev" aria-label="Əvvəlki">&#10094;</button>
   <img id="lightboxImg" src="" alt="">
-  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Növbəti">&#10095;</button>
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" data-i18n-aria="next" aria-label="Növbəti">&#10095;</button>
 </div>
 
 <div class="seminar-modal" id="seminarModal">
   <div class="seminar-modal-box">
-    <button class="lightbox-close" id="seminarModalClose" aria-label="Bağla">&times;</button>
+    <button class="lightbox-close" id="seminarModalClose" data-i18n-aria="close" aria-label="Bağla">&times;</button>
 
     <div class="video-frame">
       <video class="seminar-video" id="seminarVideo" controls playsinline hidden></video>
       <div class="video-fallback" id="videoFallback">
-        <div class="video-badge" id="videoBadge">Trailer</div>
+        <div class="video-badge" id="videoBadge" data-i18n="video.trailer">Trailer</div>
         <div class="video-progress"><div class="video-progress-bar" id="videoProgressBar"></div></div>
       </div>
     </div>
@@ -220,13 +220,13 @@
       <h3 class="seminar-modal-title" id="seminarModalTitle">—</h3>
 
       <div class="paywall" id="paywall">
-        <p class="paywall-text">Trailer bitdi. Dərsi sonuna kimi izləmək üçün ödəniş etməlisiniz. Bir dəfə aldıqdan sonra bu seminar hesabınıza bağlanır — başqa yerdən daxil olsanız da yenidən ödəniş etmədən baxa bilərsiniz.</p>
-        <button class="submit-btn" id="unlockBtn">Kilidi aç — <span id="unlockPrice">$0</span></button>
+        <p class="paywall-text" data-i18n="paywall.text">Trailer bitdi. Dərsi sonuna kimi izləmək üçün ödəniş etməlisiniz. Bir dəfə aldıqdan sonra bu seminar hesabınıza bağlanır — başqa yerdən daxil olsanız da yenidən ödəniş etmədən baxa bilərsiniz.</p>
+        <button class="submit-btn" id="unlockBtn"><span data-i18n="paywall.unlock">Kilidi aç</span> — <span id="unlockPrice">$0</span></button>
       </div>
 
       <div class="unlocked" id="unlocked" hidden>
-        <span class="unlocked-badge">✓ Satın alınıb</span>
-        <p class="paywall-text" id="unlockedText">Bu seminar hesabınıza bağlıdır. Tam dərs burada oynayacaq (backend qoşulduqdan sonra).</p>
+        <span class="unlocked-badge" data-i18n="unlocked.badge">✓ Satın alınıb</span>
+        <p class="paywall-text" id="unlockedText" data-i18n="unlocked.text">Bu seminar hesabınıza bağlıdır. Tam dərs burada oynayacaq (backend qoşulduqdan sonra).</p>
       </div>
     </div>
   </div>
@@ -234,38 +234,38 @@
 
 <div class="auth-modal" id="authModal">
   <div class="auth-modal-box">
-    <button class="lightbox-close" id="authModalClose" aria-label="Bağla">&times;</button>
+    <button class="lightbox-close" id="authModalClose" data-i18n-aria="close" aria-label="Bağla">&times;</button>
 
     <div class="auth-tabs">
-      <button class="auth-tab active" data-tab="signin" id="authTabSignin">Sign In</button>
-      <button class="auth-tab" data-tab="signup" id="authTabSignup">Sign Up</button>
+      <button class="auth-tab active" data-tab="signin" id="authTabSignin" data-i18n="auth.signin">Sign In</button>
+      <button class="auth-tab" data-tab="signup" id="authTabSignup" data-i18n="auth.signup">Sign Up</button>
     </div>
 
     <form class="auth-form" id="signinForm">
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Şifrə" required>
+      <input type="email" data-i18n-ph="auth.email" placeholder="Email" required>
+      <input type="password" data-i18n-ph="auth.password" placeholder="Şifrə" required>
       <label class="auth-remember">
         <input type="checkbox" id="rememberMe">
-        <span>Məni xatırla</span>
+        <span data-i18n="auth.remember">Məni xatırla</span>
       </label>
-      <button type="submit" class="submit-btn">Daxil ol</button>
+      <button type="submit" class="submit-btn" data-i18n="auth.login">Daxil ol</button>
     </form>
 
     <form class="auth-form" id="signupForm" hidden>
-      <input type="text" id="signupFirstName" placeholder="Ad" required>
-      <input type="text" id="signupLastName" placeholder="Soyad" required>
-      <input type="text" id="signupInstagram" placeholder="Instagram səhifəsi (@istifadəçi)">
-      <input type="email" id="signupEmail" placeholder="Email" required>
-      <input type="password" id="signupPassword" placeholder="Şifrə" required>
+      <input type="text" id="signupFirstName" data-i18n-ph="auth.firstName" placeholder="Ad" required>
+      <input type="text" id="signupLastName" data-i18n-ph="auth.lastName" placeholder="Soyad" required>
+      <input type="text" id="signupInstagram" data-i18n-ph="auth.instagram" placeholder="Instagram səhifəsi (@istifadəçi)">
+      <input type="email" id="signupEmail" data-i18n-ph="auth.email" placeholder="Email" required>
+      <input type="password" id="signupPassword" data-i18n-ph="auth.password" placeholder="Şifrə" required>
       <label class="auth-terms">
         <input type="checkbox" id="agreeTerms" required>
-        <span>Bütün <a href="#" id="termsLink" class="terms-link">istifadə şərtlərini</a> oxudum, razıyam</span>
+        <span data-i18n-html="auth.terms">Bütün <a href="#" id="termsLink" class="terms-link">istifadə şərtlərini</a> oxudum, razıyam</span>
       </label>
-      <button type="submit" class="submit-btn">Qeydiyyatdan keç</button>
+      <button type="submit" class="submit-btn" data-i18n="auth.register">Qeydiyyatdan keç</button>
     </form>
 
     <div class="auth-purchases" id="authPurchases" hidden>
-      <h3 class="auth-purchases-title">Aldığınız seminarlar</h3>
+      <h3 class="auth-purchases-title" data-i18n="auth.purchases">Aldığınız seminarlar</h3>
       <ul class="purchased-list" id="purchasedList"></ul>
     </div>
   </div>
@@ -273,9 +273,9 @@
 
 <div class="terms-modal" id="termsModal">
   <div class="terms-modal-box">
-    <button class="lightbox-close" id="termsModalClose" aria-label="Bağla">&times;</button>
-    <h3 class="terms-modal-title">İstifadə şərtləri</h3>
-    <div class="terms-modal-body">
+    <button class="lightbox-close" id="termsModalClose" data-i18n-aria="close" aria-label="Bağla">&times;</button>
+    <h3 class="terms-modal-title" data-i18n="terms.title">İstifadə şərtləri</h3>
+    <div class="terms-modal-body" data-i18n-html="terms.body">
       <p>Bu istifadə şərtləri Kamal Abdulla platformasından (bundan sonra "Platforma") istifadə edən bütün istifadəçilərə şamil olunur. Qeydiyyatdan keçməklə siz aşağıdakı şərtləri qəbul etmiş sayılırsınız.</p>
 
       <p><strong>Şəxsi məlumatların qorunması.</strong> Qeydiyyat zamanı təqdim etdiyiniz ad, soyad, email və Instagram səhifəsi kimi məlumatlar yalnız hesabınızı yaratmaq və sizinlə əlaqə saxlamaq məqsədilə istifadə olunur. Bu məlumatlar heç bir üçüncü tərəfə — reklam şirkətlərinə, marketinq xidmətlərinə və ya başqa şəxslərə — satılmır, icarəyə verilmir və ya paylaşılmır.</p>
@@ -292,7 +292,7 @@
 </div>
 
 <div class="blog-modal" id="blogModal">
-  <button class="lightbox-close blog-modal-close" id="blogModalClose" aria-label="Bağla">&times;</button>
+  <button class="lightbox-close blog-modal-close" id="blogModalClose" data-i18n-aria="close" aria-label="Bağla">&times;</button>
   <div class="blog-modal-box">
     <span class="blog-modal-date" id="blogModalDate">—</span>
     <h2 class="blog-modal-title" id="blogModalTitle">—</h2>
@@ -301,6 +301,7 @@
 </div>
 
 <script src="assets/data.js"></script>
+<script src="assets/i18n.js"></script>
 <script type="module" src="script.js"></script>
 </body>
 </html>

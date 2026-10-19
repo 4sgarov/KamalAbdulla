@@ -21,15 +21,20 @@ function closeModalAnimated(modal, after) {
 /* ---------- DİL SEÇİMİ ---------- */
 const langBtns = document.querySelectorAll(".lang-btn");
 
+/* Mətnlər assets/i18n.js-dəndir. Statik mətnlər data-i18n atributları ilə,
+   dinamik bölmələr isə yenidən çəkilməklə dəyişir. */
 function setLang(lang) {
+  if (!LANGS.includes(lang)) lang = "az";
+  currentLang = lang;
   langBtns.forEach(btn => btn.classList.toggle("active", btn.dataset.lang === lang));
   document.documentElement.lang = lang;
   try { localStorage.setItem("lang", lang); } catch (e) {}
+  applyStaticTranslations();
+  rerenderForLang();
 }
 
 let savedLang = "az";
 try { savedLang = localStorage.getItem("lang") || "az"; } catch (e) {}
-setLang(savedLang);
 langBtns.forEach(btn => btn.addEventListener("click", () => setLang(btn.dataset.lang)));
 
 /* ---------- NAV / VIEW SWITCHING ---------- */
@@ -88,7 +93,8 @@ const aboutText = document.getElementById("aboutText");
 function renderAbout() {
   const about = getAbout();
   aboutPhoto.src = about.photo;
-  aboutText.innerHTML = about.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join("");
+  const paragraphs = tContent("about", null, "paragraphs", about.paragraphs);
+  aboutText.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join("");
 }
 
 /* ---------- RENDER: PORTFOLIO ---------- */
@@ -110,7 +116,7 @@ let currentFilter = "all";
 
 function renderPortfolioFilters() {
   const categories = getCategories();
-  const buttons = [{ id: "all", label: "All" }].concat(categories);
+  const buttons = [{ id: "all", label: t("portfolio.all") }].concat(categories);
   portfolioFilters.innerHTML = buttons.map(cat => `
     <button class="filter-btn${cat.id === currentFilter ? " active" : ""}" data-filter="${escapeHtml(cat.id)}">${escapeHtml(cat.label)}</button>
   `).join("");
@@ -200,13 +206,13 @@ function renderSeminars() {
     <article class="seminar-card">
       <div class="seminar-cover">
         <img src="${escapeHtml(s.cover)}" alt="${escapeHtml(s.title)}">
-        <button class="play-btn" aria-label="Videoya bax" data-seminar-id="${escapeHtml(s.id)}" data-title="${escapeHtml(s.title)}" data-price="${escapeHtml(s.price)}"></button>
+        <button class="play-btn" aria-label="${escapeHtml(t("seminar.play"))}" data-seminar-id="${escapeHtml(s.id)}" data-title="${escapeHtml(s.title)}" data-price="${escapeHtml(s.price)}"></button>
       </div>
       <div class="seminar-head">
         <h3 class="seminar-title">${escapeHtml(s.title)}</h3>
         <span class="seminar-price">${escapeHtml(s.price)}</span>
       </div>
-      <p class="seminar-desc">${escapeHtml(s.description)}</p>
+      <p class="seminar-desc">${escapeHtml(tContent("seminars", s.id, "description", s.description))}</p>
     </article>
   `).join("");
 }
@@ -268,10 +274,16 @@ function showUnlockedState() {
   } else {
     unlockedText.hidden = false;
     stopSeminarVideo();
-    videoBadge.textContent = "Tam dərs";
+    setVideoBadge("video.full");
     videoProgressBar.classList.remove("playing");
     videoProgressBar.style.width = "100%";
   }
+}
+
+/* Nişanın açarı data-i18n-də saxlanılır ki, dil dəyişəndə də düz qalsın */
+function setVideoBadge(key) {
+  videoBadge.dataset.i18n = key;
+  videoBadge.textContent = t(key);
 }
 
 function showPaywallState() {
@@ -311,7 +323,7 @@ function openSeminarModal(btn) {
   }
 
   stopSeminarVideo();
-  videoBadge.textContent = "Trailer";
+  setVideoBadge("video.trailer");
   videoProgressBar.classList.remove("playing");
   videoProgressBar.style.width = "0%";
 
@@ -320,7 +332,7 @@ function openSeminarModal(btn) {
   });
 
   trailerTimer = setTimeout(() => {
-    videoBadge.textContent = "Trailer bitdi";
+    setVideoBadge("video.trailerEnded");
     paywall.hidden = false;
   }, 5000);
 }
@@ -394,7 +406,7 @@ function renderPurchasedList() {
   if (owned.length === 0) {
     const li = document.createElement("li");
     li.className = "purchased-empty";
-    li.textContent = "Hələ heç bir seminar almamısınız.";
+    li.textContent = t("auth.noPurchases");
     purchasedList.appendChild(li);
     return;
   }
@@ -447,7 +459,6 @@ document.addEventListener("keydown", e => {
 });
 
 /* ---------- TERMS MODAL ---------- */
-const termsLink = document.getElementById("termsLink");
 const termsModal = document.getElementById("termsModal");
 const termsModalBox = document.querySelector(".terms-modal-box");
 const termsModalClose = document.getElementById("termsModalClose");
@@ -456,7 +467,10 @@ function closeTermsModal() {
   closeModalAnimated(termsModal);
 }
 
-termsLink.addEventListener("click", e => {
+/* Link dil dəyişəndə yenidən yaradılır (data-i18n-html) — ona görə
+   dinləyici sənədə qoşulur */
+document.addEventListener("click", e => {
+  if (!e.target.closest("#termsLink")) return;
   e.preventDefault();
   openModalAnimated(termsModal, termsModalBox);
 });
@@ -484,8 +498,8 @@ function renderBlogList() {
   const posts = getBlogPosts();
   blogList.innerHTML = posts.map(post => `
     <button class="blog-item" data-post="${escapeHtml(post.id)}">
-      <span class="blog-date">${escapeHtml(post.date)}</span>
-      <span class="blog-title">${escapeHtml(post.title)}</span>
+      <span class="blog-date">${escapeHtml(tContent("blog", post.id, "date", post.date))}</span>
+      <span class="blog-title">${escapeHtml(tContent("blog", post.id, "title", post.title))}</span>
     </button>
   `).join("");
 }
@@ -494,10 +508,10 @@ function openBlogPost(id) {
   const post = getBlogPosts().find(p => p.id === id);
   if (!post) return;
 
-  blogModalDate.textContent = post.date;
-  blogModalTitle.textContent = post.title;
+  blogModalDate.textContent = tContent("blog", post.id, "date", post.date);
+  blogModalTitle.textContent = tContent("blog", post.id, "title", post.title);
   blogModalBody.innerHTML = "";
-  post.paragraphs.forEach(text => {
+  tContent("blog", post.id, "paragraphs", post.paragraphs).forEach(text => {
     const p = document.createElement("p");
     p.textContent = text;
     blogModalBody.appendChild(p);
@@ -535,8 +549,7 @@ const calendarSelected = document.getElementById("calendarSelected");
 const bookingDate = document.getElementById("bookingDate");
 const bookingNote = document.getElementById("bookingNote");
 
-const AZ_MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun",
-  "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"];
+const calendarWeekdays = document.getElementById("calendarWeekdays");
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -551,14 +564,24 @@ function toISODate(d) {
   return `${d.getFullYear()}-${m}-${day}`;
 }
 
-function formatAzDate(d) {
-  return `${d.getDate()} ${AZ_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+function formatDate(d) {
+  return `${d.getDate()} ${t("cal.monthsGen")[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function renderWeekdays() {
+  calendarWeekdays.innerHTML = t("cal.weekdays").map(w => `<span>${escapeHtml(w)}</span>`).join("");
+}
+
+function renderCalendarSelected() {
+  calendarSelected.textContent = selectedDate
+    ? t("cal.selected", { date: formatDate(selectedDate) })
+    : t("cal.pick");
 }
 
 function renderCalendar() {
   const year = calendarCursor.getFullYear();
   const month = calendarCursor.getMonth();
-  calendarMonth.textContent = `${AZ_MONTHS[month]} ${year}`;
+  calendarMonth.textContent = `${t("cal.months")[month]} ${year}`;
 
   /* Cari aydan geriyə getmək olmaz — keçmiş günlər onsuz da seçilmir */
   calendarPrev.disabled = year === today.getFullYear() && month === today.getMonth();
@@ -592,7 +615,7 @@ function selectDate(iso) {
   const [y, m, d] = iso.split("-").map(Number);
   selectedDate = new Date(y, m - 1, d);
   bookingDate.value = iso;
-  calendarSelected.textContent = `Seçilmiş tarix: ${formatAzDate(selectedDate)}`;
+  renderCalendarSelected();
   calendarSelected.classList.add("has-date");
   bookingCalendar.classList.remove("error");
   hideBookingNote();
@@ -612,7 +635,7 @@ function selectDate(iso) {
 function clearSelectedDate() {
   selectedDate = null;
   bookingDate.value = "";
-  calendarSelected.textContent = "Tarix seçin";
+  renderCalendarSelected();
   calendarSelected.classList.remove("has-date");
   clearSelectedTime();
   bookingTimes.hidden = true;
@@ -635,12 +658,6 @@ const BOOKINGS_API = "/api/bookings.php";
 let bookedTimes = [];
 let slotsRequest = 0;
 
-const PAYMENT_LABELS = {
-  card: "Kartla onlayn",
-  transfer: "Bank köçürməsi",
-  cash: "Nağd",
-};
-
 function showStep(el) {
   if (!el.hidden) return;
   el.hidden = false;
@@ -652,24 +669,24 @@ function renderTimeSlots() {
   const isToday = selectedDate && selectedDate.getTime() === today.getTime();
 
   timeSlots.innerHTML = "";
-  TIME_SLOTS.forEach(t => {
+  TIME_SLOTS.forEach(slot => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "time-slot";
-    btn.textContent = t;
-    btn.dataset.time = t;
+    btn.textContent = slot;
+    btn.dataset.time = slot;
 
-    const [h, m] = t.split(":").map(Number);
+    const [h, m] = slot.split(":").map(Number);
     if (isToday && (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes()))) {
       btn.disabled = true;
     }
-    if (bookedTimes.includes(t)) {
+    if (bookedTimes.includes(slot)) {
       btn.disabled = true;
       btn.classList.add("booked");
-      btn.title = "Bu saat doludur";
-      btn.innerHTML = `${t}<small>Dolu</small>`;
+      btn.title = t("time.bookedTitle");
+      btn.innerHTML = `${slot}<small>${escapeHtml(t("time.booked"))}</small>`;
     }
-    if (bookingTime.value === t) btn.classList.add("selected");
+    if (bookingTime.value === slot) btn.classList.add("selected");
     timeSlots.appendChild(btn);
   });
 }
@@ -688,7 +705,7 @@ async function loadBookedTimes() {
     bookedTimes = Array.isArray(data.booked) ? data.booked : [];
   } catch {
     if (req !== slotsRequest) return;
-    showBookingNote("Boş saatları yükləmək olmadı. İnternet bağlantınızı yoxlayın.");
+    showBookingNote(t("note.slotsFail"));
   }
   timeSlots.classList.remove("loading");
   if (bookedTimes.includes(bookingTime.value)) clearSelectedTime();
@@ -752,23 +769,23 @@ bookingForm.addEventListener("submit", async e => {
   const phone = document.getElementById("bookingPhone").value.trim();
   const message = document.getElementById("bookingMessage").value.trim();
 
-  if (!name) { showBookingNote("Zəhmət olmasa ad və soyadınızı yazın."); return; }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showBookingNote("Düzgün email ünvanı yazın."); return; }
-  if (!phone) { showBookingNote("Telefon nömrənizi yazın."); return; }
+  if (!name) { showBookingNote(t("note.name")); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showBookingNote(t("note.email")); return; }
+  if (!phone) { showBookingNote(t("note.phone")); return; }
   if (!bookingDate.value) {
     bookingCalendar.classList.add("error");
-    showBookingNote("Kalendardan tarix seçin.");
+    showBookingNote(t("note.date"));
     return;
   }
   if (!bookingTime.value) {
     bookingTimes.classList.add("error");
-    showBookingNote("Saat seçin.");
+    showBookingNote(t("note.time"));
     return;
   }
   const payment = bookingForm.querySelector('input[name="payment"]:checked');
   if (!payment) {
     bookingPayment.classList.add("error");
-    showBookingNote("Ödəniş növünü seçin.");
+    showBookingNote(t("note.payment"));
     return;
   }
 
@@ -791,7 +808,7 @@ bookingForm.addEventListener("submit", async e => {
     data = await res.json();
   } catch {
     submitBtn.disabled = false;
-    showBookingNote("Rezervasiyanı göndərmək olmadı. İnternet bağlantınızı yoxlayıb yenidən cəhd edin.");
+    showBookingNote(t("note.sendFail"));
     return;
   }
   submitBtn.disabled = false;
@@ -801,15 +818,20 @@ bookingForm.addEventListener("submit", async e => {
     clearSelectedTime();
     renderTimeSlots();
     bookingTimes.classList.add("error");
-    showBookingNote(data.error);
+    showBookingNote(t("note.slotTaken"));
     return;
   }
   if (!res.ok) {
-    showBookingNote(data.error || "Xəta baş verdi. Yenidən cəhd edin.");
+    /* Serverin xəta mətni azərbaycancadır — başqa dildə ümumi mesaj göstəririk */
+    showBookingNote((currentLang === "az" && data.error) || t("note.error"));
     return;
   }
 
-  showBookingNote(`Rezervasiyanız qəbul edildi — ${formatAzDate(selectedDate)}, saat ${bookingTime.value}. Ödəniş: ${PAYMENT_LABELS[payment.value]}. Tezliklə sizinlə əlaqə saxlayacağıq.`, true);
+  showBookingNote(t("note.success", {
+    date: formatDate(selectedDate),
+    time: bookingTime.value,
+    payment: t("pay." + payment.value),
+  }), true);
   bookingForm.reset();
   clearSelectedDate();
   calendarCursor = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -830,10 +852,20 @@ window.addEventListener("storage", e => {
   if (e.key === STORAGE_KEYS.blog) renderBlogList();
 });
 
+/* ---------- DİL DƏYİŞƏNDƏ YENİDƏN ÇƏKMƏ ---------- */
+function rerenderForLang() {
+  renderAbout();
+  renderPortfolioFilters();
+  applyFilter(currentFilter);
+  renderSeminars();
+  renderBlogList();
+  renderWeekdays();
+  renderCalendar();
+  renderCalendarSelected();
+  if (!bookingTimes.hidden) renderTimeSlots();
+  if (!authPurchases.hidden) renderPurchasedList();
+}
+
 /* ---------- INIT ---------- */
-renderAbout();
-renderPortfolioFilters();
 renderPortfolio();
-renderSeminars();
-renderBlogList();
-renderCalendar();
+setLang(savedLang);
